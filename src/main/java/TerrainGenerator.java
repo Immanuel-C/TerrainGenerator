@@ -5,14 +5,25 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.util.concurrent.Semaphore;
 
 public class TerrainGenerator extends JFrame implements WindowListener {
     Thread renderThread;
     TerrainCanvas canvas;
+    Input input;
 
 
     public TerrainGenerator() throws InterruptedException {
         JFrame frame = new JFrame("Terrain Generator");
+
+        frame.addWindowListener(this);
+
+        input = new Input();
+
+        frame.addKeyListener(input);
+        frame.addMouseListener(input);
+        frame.addMouseWheelListener(input);
+        frame.addMouseMotionListener(input);
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -21,9 +32,9 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         data.majorVersion = 4;
         data.minorVersion = 3;
         data.doubleBuffer = true;
-        data.swapInterval = null;
+        data.swapInterval = 0;
 
-        canvas = new TerrainCanvas(data);
+        canvas = new TerrainCanvas(data, input);
         frame.add(canvas, BorderLayout.CENTER);
 
         JPanel panel = new JPanel();
@@ -31,6 +42,13 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         panel.setBackground(Color.BLACK);
         panel.setMinimumSize(new Dimension(200, 720));
         panel.setPreferredSize(new Dimension(200, 720));
+
+        JLabel fpsLabel = new JLabel();
+
+        panel.add(fpsLabel);
+
+        CanvasUiTasks canvasTasks = new CanvasUiTasks(canvas, fpsLabel);
+        canvasTasks.execute();
 
         frame.add(panel, BorderLayout.EAST);
 

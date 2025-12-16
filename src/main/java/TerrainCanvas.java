@@ -5,25 +5,37 @@ import org.lwjgl.opengl.awt.GLData;
 
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.awt.event.KeyEvent;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
     private AtomicBoolean running;
     private DeltaTime deltaTime;
+    private final Input input;
 
-    BlockingQueue<CanvasThreadMessage> messageQueue;
+    private final AtomicReference<Double> fps;
 
-    public TerrainCanvas(GLData data) {
+    BlockingQueue<ThreadMessage> messageQueue;
+
+    public TerrainCanvas(GLData data, Input input) {
         super(data);
 
         this.addComponentListener(this);
+        this.addKeyListener(input);
+        this.addMouseListener(input);
+        this.addMouseMotionListener(input);
+        this.addMouseWheelListener(input);
 
         this.running = new AtomicBoolean(true);
         this.deltaTime = new DeltaTime();
         this.messageQueue = new LinkedBlockingQueue<>();
+        this.input = input;
+        this.fps = new AtomicReference<>(0.0);
+
     }
 
     @Override
@@ -41,10 +53,18 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         while (this.isRunning()) {
             this.deltaTime.start();
 
-            this.render();
+            if (this.input.isKeyDown(KeyEvent.VK_A, 0)) {
+                System.out.println("A key is pressed!");
+            }
+
+            try {
+                this.render();
+            } catch (NullPointerException e) {
+                break;
+            }
             swapBuffers();
 
-            CanvasThreadMessage message;
+            ThreadMessage message;
 
             while ((message = messageQueue.poll()) != null) {
                 switch (message) {
@@ -59,11 +79,15 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
 
 
 
-            double fps = 1.0 / deltaTime.get();
-            //System.out.println(fps + " Thread: " + Thread.currentThread().getName());
+            this.fps.set(1.0 / deltaTime.get());
 
             this.deltaTime.end();
         }
+
+    }
+
+    public double getFps() {
+        return this.fps.get();
     }
 
     public boolean isRunning() {
@@ -78,7 +102,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
 
     @Override
     public void componentResized(ComponentEvent componentEvent) {
-        messageQueue.add(CanvasThreadMessage.RESIZED);
+        messageQueue.add(ThreadMessage.RESIZED);
     }
 
     @Override
