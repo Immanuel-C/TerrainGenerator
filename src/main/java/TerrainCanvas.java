@@ -45,7 +45,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLD
     @Override
     public void initGL() {
         GL.createCapabilities();
-        this.renderer = new Renderer();
+        this.renderer = new Renderer(90, this.getWidth(), this.getHeight());
 
         glDebugMessageCallback(this, 0);
     }

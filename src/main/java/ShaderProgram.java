@@ -1,4 +1,8 @@
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
+
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -41,6 +45,24 @@ public class ShaderProgram {
 
     void destroy() {
         glDeleteProgram(this.shaderProgram);
+    }
+
+    public int get() {
+        return this.shaderProgram;
+    }
+
+    public void uploadMatrix4f(Matrix4f matrix, String uniformName) {
+        int location = glGetUniformLocation(this.shaderProgram, uniformName);
+
+        if (location == -1)
+            throw new RuntimeException("Uniform name provided " + uniformName + " is not found in program " + this.shaderProgram + "\n");
+
+        // This is garbage collected so no need for to free.
+        FloatBuffer uniformBuffer = BufferUtils.createFloatBuffer(4*4);
+        uniformBuffer = matrix.get(uniformBuffer);
+
+        // Transpose the matrix from row major to column major. Since JOML is already in column major this is not needed.
+        glUniformMatrix4fv(location, false, uniformBuffer);
     }
 
     private int createShader(ShaderInfo path) {

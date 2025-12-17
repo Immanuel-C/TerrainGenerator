@@ -32,7 +32,8 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener, M
     }
 
     public boolean isKeyUp(int key, int modifiers) {
-        return !this.keys.contains(key);    }
+        return !this.keys.contains(key);
+    }
 
     public boolean isModifiersDown(int modifiers) {
         return (this.modifiers.get() & modifiers) != 0;

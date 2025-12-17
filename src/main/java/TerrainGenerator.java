@@ -35,6 +35,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         data.doubleBuffer = true;
         data.samples = 4;
         data.swapInterval = 0;
+        data.debug = true;
 
         canvas = new TerrainCanvas(data, input);
         frame.add(canvas, BorderLayout.CENTER);
