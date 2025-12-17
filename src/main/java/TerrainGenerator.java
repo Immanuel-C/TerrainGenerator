@@ -28,10 +28,12 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setPreferredSize(new Dimension(1280, 720));
+
         GLData data = new GLData();
         data.majorVersion = 4;
         data.minorVersion = 3;
         data.doubleBuffer = true;
+        data.samples = 4;
         data.swapInterval = 0;
 
         canvas = new TerrainCanvas(data, input);
@@ -58,8 +60,6 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
         renderThread = new Thread(canvas::run, "Terrain Canvas Render Thread");
         renderThread.start();
-
-
     }
 
 

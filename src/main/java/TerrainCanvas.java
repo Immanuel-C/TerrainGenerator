@@ -1,5 +1,8 @@
 import org.lwjgl.opengl.GL;
 import static org.lwjgl.opengl.GL43.*;
+import static org.lwjgl.system.MemoryUtil.memByteBuffer;
+
+import org.lwjgl.opengl.GLDebugMessageCallbackI;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
 
@@ -12,10 +15,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
+public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLDebugMessageCallbackI {
     private AtomicBoolean running;
     private DeltaTime deltaTime;
     private final Input input;
+    private Renderer renderer;
 
     private final AtomicReference<Double> fps;
 
@@ -41,43 +45,41 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
     @Override
     public void initGL() {
         GL.createCapabilities();
+        this.renderer = new Renderer();
+
+        glDebugMessageCallback(this, 0);
     }
 
     @Override
     public void paintGL() {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
+        this.renderer.render();
+
+        ThreadMessage message;
+
+        while ((message = messageQueue.poll()) != null) {
+            switch (message) {
+                case RESIZED -> {
+                    glViewport(0, 0, getWidth(), getHeight());
+                    System.out.println("Canvas Size: " + getWidth() + "x" + getHeight());
+                }
+                default -> {}
+            }
+        }
+
+
+        swapBuffers();
     }
 
     public void run() {
         while (this.isRunning()) {
             this.deltaTime.start();
 
-            if (this.input.isKeyDown(KeyEvent.VK_A, 0)) {
-                System.out.println("A key is pressed!");
-            }
-
             try {
                 this.render();
             } catch (NullPointerException e) {
+                this.renderer.destroy();
                 break;
             }
-            swapBuffers();
-
-            ThreadMessage message;
-
-            while ((message = messageQueue.poll()) != null) {
-                switch (message) {
-                    case RESIZED:
-                        glViewport(0, 0, getWidth(), getHeight());
-                        System.out.println("Canvas Size: " + getWidth() + "x" + getHeight());
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-
 
             this.fps.set(1.0 / deltaTime.get());
 
@@ -94,7 +96,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         return this.running.get();
     }
 
-    public void stopRunning() {
+    public synchronized void stopRunning() {
         this.running.set(false);
         GL.setCapabilities(null);
         super.disposeCanvas();
@@ -118,5 +120,12 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
     @Override
     public void componentHidden(ComponentEvent componentEvent) {
 
+    }
+
+    @Override
+    public void invoke(int source, int type, int id, int severity, int length, long messagePointer, long userParam) {
+        String msg = memByteBuffer(messagePointer, length).toString();
+
+        System.out.println("glDebugMessage: " + msg);
     }
 }

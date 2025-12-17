@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class CanvasUiTasks extends SwingWorker<Void, String> {
+public class CanvasUiTasks extends SwingWorker<Void, Void> {
     JLabel fpsLabel;
     TerrainCanvas canvas;
 
@@ -13,7 +13,7 @@ public class CanvasUiTasks extends SwingWorker<Void, String> {
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         while (this.canvas.isRunning()) {
             if (System.currentTimeMillis() - this.lastTimeFpsDisplayed > 1000) {
                 this.fpsLabel.setText("FPS: " + Math.round(this.canvas.getFps()));
