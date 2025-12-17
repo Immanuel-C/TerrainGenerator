@@ -96,7 +96,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLD
         return this.running.get();
     }
 
-    public synchronized void stopRunning() {
+    public void stopRunning() {
         this.running.set(false);
         GL.setCapabilities(null);
         super.disposeCanvas();

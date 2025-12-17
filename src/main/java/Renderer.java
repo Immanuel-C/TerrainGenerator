@@ -27,6 +27,7 @@ public class Renderer {
 
         this.sp.bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        ShaderProgram.unBind();
     }
 
 }

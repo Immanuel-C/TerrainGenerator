@@ -11,7 +11,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
     Thread renderThread;
     TerrainCanvas canvas;
     Input input;
-
+    CanvasUi canvasUi;
 
     public TerrainGenerator() throws InterruptedException {
         JFrame frame = new JFrame("Terrain Generator");
@@ -41,22 +41,18 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
         JPanel panel = new JPanel();
 
-        panel.setBackground(Color.BLACK);
         panel.setMinimumSize(new Dimension(200, 720));
         panel.setPreferredSize(new Dimension(200, 720));
 
-        JLabel fpsLabel = new JLabel();
 
-        panel.add(fpsLabel);
+        this.canvasUi = new CanvasUi(canvas);
 
-        CanvasUiTasks canvasTasks = new CanvasUiTasks(canvas, fpsLabel);
-        canvasTasks.execute();
+        panel.add(canvasUi);
 
         frame.add(panel, BorderLayout.EAST);
 
         frame.pack();
         frame.setVisible(true);
-        frame.transferFocus();
 
         renderThread = new Thread(canvas::run, "Terrain Canvas Render Thread");
         renderThread.start();
@@ -71,6 +67,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
     @Override
     public void windowClosing(WindowEvent windowEvent) {
+        this.canvasUi.stopRunning();
         this.canvas.stopRunning();
     }
 

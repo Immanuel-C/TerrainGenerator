@@ -33,7 +33,10 @@ public class ShaderProgram {
 
     void bind() {
         glUseProgram(this.shaderProgram);
-        //System.out.println("Bound shader");
+    }
+
+    static void unBind() {
+        glUseProgram(0);
     }
 
     void destroy() {
@@ -42,15 +45,9 @@ public class ShaderProgram {
 
     private int createShader(ShaderInfo path) {
         int type = switch (path.getType()) {
-            case Compute -> {
-                yield GL_COMPUTE_SHADER;
-            }
-            case Vertex -> {
-                yield GL_VERTEX_SHADER;
-            }
-            case Fragment -> {
-                yield GL_FRAGMENT_SHADER;
-            }
+            case Compute -> GL_COMPUTE_SHADER;
+            case Vertex -> GL_VERTEX_SHADER;
+            case Fragment -> GL_FRAGMENT_SHADER;
         };
 
         int shader = glCreateShader(type);
