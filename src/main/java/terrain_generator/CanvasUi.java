@@ -1,3 +1,5 @@
+package terrain_generator;
+
 import javax.swing.*;
 import java.awt.*;
 

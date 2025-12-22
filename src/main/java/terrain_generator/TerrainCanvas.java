@@ -1,17 +1,13 @@
-import org.lwjgl.opengl.GL;
-import static org.lwjgl.opengl.GL43.*;
-import static org.lwjgl.system.MemoryUtil.memByteBuffer;
+package terrain_generator;
 
-import org.lwjgl.opengl.GLDebugMessageCallbackI;
-import org.lwjgl.opengl.awt.AWTGLCanvas;
-import org.lwjgl.opengl.awt.GLData;
 
+import com.jogamp.opengl.awt.GLCanvas;
+
+import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,13 +35,15 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLD
         this.messageQueue = new LinkedBlockingQueue<>();
         this.input = input;
         this.fps = new AtomicReference<>(0.0);
-
     }
 
     @Override
     public void initGL() {
+
         GL.createCapabilities();
-        this.renderer = new Renderer(90, this.getWidth(), this.getHeight());
+        this.renderer = new Renderer((float) Math.toRadians(90.0), this.getWidth(), this.getHeight());
+        System.out.println("After creating renderer");
+
 
         glDebugMessageCallback(this, 0);
     }
@@ -58,10 +56,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLD
 
         while ((message = messageQueue.poll()) != null) {
             switch (message) {
-                case RESIZED -> {
-                    glViewport(0, 0, getWidth(), getHeight());
-                    System.out.println("Canvas Size: " + getWidth() + "x" + getHeight());
-                }
+                case Resized -> glViewport(0, 0, getWidth(), getHeight());
                 default -> {}
             }
         }
@@ -76,7 +71,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLD
 
             try {
                 this.render();
-            } catch (NullPointerException e) {
+            } catch (RuntimeException _) {
                 this.renderer.destroy();
                 break;
             }
@@ -104,7 +99,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, GLD
 
     @Override
     public void componentResized(ComponentEvent componentEvent) {
-        messageQueue.add(ThreadMessage.RESIZED);
+        messageQueue.add(ThreadMessage.Resized);
     }
 
     @Override

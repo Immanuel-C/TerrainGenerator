@@ -1,42 +1,28 @@
 plugins {
     id("java")
+    id("application")
+}
+
+application {
+    mainClass.set("terrain_generator.Main")
 }
 
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
-val lwjglVersion = "3.3.0"
+val joglVersion = "2.6.0"
 val jomlVersion = "1.10.8"
-val `lwjgl3-awtVersion` = "0.1.8"
-
-val lwjglNatives = Pair(
-    System.getProperty("os.name")!!,
-    System.getProperty("os.arch")!!
-).let { (name, arch) ->
-    when {
-        arrayOf("Linux", "SunOS", "Unit").any { name.startsWith(it) } ->
-            "natives-linux"
-        arrayOf("Windows").any { name.startsWith(it) }                ->
-            "natives-windows"
-        else                                                                            ->
-            throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
-    }
-}
-
 
 repositories {
     mavenCentral()
     maven("https://central.sonatype.com/repository/maven-snapshots")
+    maven("https://jogamp.org/deployment/maven")
 }
 
 dependencies {
-    implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
-
-    implementation("org.lwjgl", "lwjgl")
-    implementation("org.lwjgl", "lwjgl-jawt")
-    implementation("org.lwjgl", "lwjgl-opengl")
-    implementation ("org.lwjgl", "lwjgl", classifier = lwjglNatives)
-    implementation ("org.lwjgl", "lwjgl-opengl", classifier = lwjglNatives)
-    implementation("org.joml", "joml", jomlVersion)
-    implementation("org.lwjglx", "lwjgl3-awt", `lwjgl3-awtVersion`)
+    runtimeOnly("org.jogamp.jogl:jogl-all:2.6.0:natives-windows-amd64")
+    runtimeOnly("org.jogamp.gluegen:gluegen-rt:2.6.0:natives-windows-amd64")
+    implementation("org.jogamp.jogl:jogl-all:2.6.0")
+    implementation("org.jogamp.gluegen:gluegen-rt:2.6.0")
+    implementation("org.joml:joml:1.10.8")
 }

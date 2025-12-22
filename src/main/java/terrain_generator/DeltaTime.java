@@ -1,3 +1,5 @@
+package terrain_generator;
+
 public class DeltaTime {
     private double deltaTime;
     private long start;

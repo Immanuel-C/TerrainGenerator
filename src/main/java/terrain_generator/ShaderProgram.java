@@ -1,3 +1,5 @@
+package terrain_generator;
+
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
@@ -66,7 +68,7 @@ public class ShaderProgram {
     }
 
     private int createShader(ShaderInfo path) {
-        int type = switch (path.getType()) {
+        int type = switch (path.type()) {
             case Compute -> GL_COMPUTE_SHADER;
             case Vertex -> GL_VERTEX_SHADER;
             case Fragment -> GL_FRAGMENT_SHADER;
@@ -77,7 +79,7 @@ public class ShaderProgram {
         String shaderSource;
 
         try {
-             shaderSource = Files.readString(Path.of(path.getPath()));
+             shaderSource = Files.readString(Path.of(path.path()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -89,7 +91,7 @@ public class ShaderProgram {
         
         if (success == 0) {
             String shaderLog = glGetShaderInfoLog(shader);
-            throw new IllegalStateException(path.getPath() + " failed to compile:\n\n" + shaderLog);
+            throw new IllegalStateException(path.path() + " failed to compile:\n\n" + shaderLog);
         }
 
         return shader;

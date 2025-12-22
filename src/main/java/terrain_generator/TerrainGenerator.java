@@ -1,17 +1,18 @@
+package terrain_generator;
+
 import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.event.WindowStateListener;
-import java.util.concurrent.Semaphore;
 
-public class TerrainGenerator extends JFrame implements WindowListener {
+public class TerrainGenerator implements WindowListener {
     Thread renderThread;
     TerrainCanvas canvas;
-    Input input;
+    JTabbedPane infoPane;
     CanvasUi canvasUi;
+    Input input;
 
     public TerrainGenerator() throws InterruptedException {
         JFrame frame = new JFrame("Terrain Generator");
@@ -33,33 +34,30 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         data.majorVersion = 4;
         data.minorVersion = 3;
         data.doubleBuffer = true;
-        data.samples = 4;
+        data.samples = 8;
         data.swapInterval = 0;
         data.debug = true;
 
-        canvas = new TerrainCanvas(data, input);
+        this.canvas = new TerrainCanvas(data, input);
+
+        this.infoPane = new JTabbedPane();
+        this.infoPane.setPreferredSize(new Dimension(300, 720));
+
+        canvasUi = new CanvasUi(canvas);
+        RendererDebugUi rendererDebugUi = new RendererDebugUi();
+
+        this.infoPane.addTab("Terrain Data", canvasUi);
+        this.infoPane.addTab("Renderer Debug Data", rendererDebugUi);
+
+        frame.add(this.infoPane, BorderLayout.WEST);
         frame.add(canvas, BorderLayout.CENTER);
-
-        JPanel panel = new JPanel();
-
-        panel.setMinimumSize(new Dimension(200, 720));
-        panel.setPreferredSize(new Dimension(200, 720));
-
-
-        this.canvasUi = new CanvasUi(canvas);
-
-        panel.add(canvasUi);
-
-        frame.add(panel, BorderLayout.EAST);
 
         frame.pack();
         frame.setVisible(true);
 
-        renderThread = new Thread(canvas::run, "Terrain Canvas Render Thread");
-        renderThread.start();
+        this.renderThread = new Thread(canvas::run, "Terrain Canvas Render Thread");
+        this.renderThread.start();
     }
-
-
 
     @Override
     public void windowOpened(WindowEvent windowEvent) {

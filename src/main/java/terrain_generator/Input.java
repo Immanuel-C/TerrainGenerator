@@ -1,9 +1,9 @@
+package terrain_generator;
+
 import java.awt.event.*;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private Set<Integer> keys, mouseButtons;

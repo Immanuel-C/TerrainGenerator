@@ -1,14 +1,14 @@
 #version 430 core
 
-
 uniform mat4 proj, view, model;
 
-void main() {
-    vec3 vertices[3] = vec3[](
-        vec3( 0.5,  0.5, 0.0),
-        vec3( 0.5, -0.5, 0.0),
-        vec3(-0.5, -0.5, 0.0)
-    );
+layout(location = 0)
+in vec4 aPos;
 
-    gl_Position = proj * view * model * vec4(vertices[gl_VertexID], 1.0);
+layout(location = 0)
+out vec3 outPos;
+
+void main() {
+    outPos = aPos.xyz;
+    gl_Position = proj * view * model * aPos;
 }

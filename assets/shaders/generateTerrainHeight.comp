@@ -1,0 +1,18 @@
+#version 430 core
+
+layout(local_size_x = 64, local_size_y = 6, local_size_z = 64) in;
+
+layout(std430, binding = 0) buffer VertexBuffer {
+    vec4 positions[];
+};
+
+layout(std430, binding = 1) buffer IndexBuffer {
+    uint32_t indices[];
+};
+
+uniform vec2 terrainSize;
+
+void main() {
+    uint index = gl_GlobalInvocationID.x * gl_GlobalInvocationID.z;
+
+}
