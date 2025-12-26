@@ -9,8 +9,6 @@ public class CanvasUi extends JPanel {
 
     TerrainCanvas canvas;
 
-    long lastTimeFpsDisplayed;
-
     public CanvasUi(TerrainCanvas canvas) {
         this.fpsLabel = new JLabel("FPS: 1");
         this.fpsLabel.setForeground(Color.black);
@@ -18,12 +16,10 @@ public class CanvasUi extends JPanel {
         this.add(fpsLabel);
 
         this.canvas = canvas;
-        this.lastTimeFpsDisplayed = System.currentTimeMillis();
 
         this.fpsTimedEvent = new Timer(500, (e) -> {
-            if (this.canvas.isRunning() && System.currentTimeMillis() - this.lastTimeFpsDisplayed > 1000) {
+            if (this.canvas.isRunning()) {
                 this.fpsLabel.setText("FPS: " + Math.round(this.canvas.getFps()));
-                this.lastTimeFpsDisplayed = System.currentTimeMillis();
             }
         });
 

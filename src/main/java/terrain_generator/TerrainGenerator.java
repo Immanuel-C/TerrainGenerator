@@ -7,28 +7,20 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-public class TerrainGenerator implements WindowListener {
-    Thread renderThread;
+public class TerrainGenerator extends JFrame implements WindowListener {
     TerrainCanvas canvas;
     JTabbedPane infoPane;
     CanvasUi canvasUi;
     Input input;
 
     public TerrainGenerator() throws InterruptedException {
-        JFrame frame = new JFrame("Terrain Generator");
+        super("Terrain Generator");
 
-        frame.addWindowListener(this);
+        this.addWindowListener(this);
 
-        input = new Input();
-
-        frame.addKeyListener(input);
-        frame.addMouseListener(input);
-        frame.addMouseWheelListener(input);
-        frame.addMouseMotionListener(input);
-
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.setPreferredSize(new Dimension(1280, 720));
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setLayout(new BorderLayout());
+        this.setPreferredSize(new Dimension(1280, 720));
 
         GLData data = new GLData();
         data.majorVersion = 4;
@@ -37,6 +29,7 @@ public class TerrainGenerator implements WindowListener {
         data.samples = 8;
         data.swapInterval = 0;
         data.debug = true;
+        data.profile = GLData.Profile.CORE;
 
         this.canvas = new TerrainCanvas(data, input);
 
@@ -49,14 +42,20 @@ public class TerrainGenerator implements WindowListener {
         this.infoPane.addTab("Terrain Data", canvasUi);
         this.infoPane.addTab("Renderer Debug Data", rendererDebugUi);
 
-        frame.add(this.infoPane, BorderLayout.WEST);
-        frame.add(canvas, BorderLayout.CENTER);
+        this.add(this.infoPane, BorderLayout.WEST);
+        this.add(canvas, BorderLayout.CENTER);
 
-        frame.pack();
-        frame.setVisible(true);
 
-        this.renderThread = new Thread(canvas::run, "Terrain Canvas Render Thread");
-        this.renderThread.start();
+        this.pack();
+        this.setVisible(true);
+
+    }
+
+    @Override
+    public void dispose() {
+        this.canvas.stopRunning();
+        super.dispose();
+
     }
 
     @Override
