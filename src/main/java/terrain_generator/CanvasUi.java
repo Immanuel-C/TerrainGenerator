@@ -17,7 +17,7 @@ public class CanvasUi extends JPanel {
 
         this.canvas = canvas;
 
-        this.fpsTimedEvent = new Timer(500, (e) -> {
+        this.fpsTimedEvent = new Timer(1000, (e) -> {
             if (this.canvas.isRunning()) {
                 this.fpsLabel.setText("FPS: " + Math.round(this.canvas.getFps()));
             }

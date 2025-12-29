@@ -4,8 +4,9 @@ layout(location = 0)
 out vec4 fragColour;
 
 layout(location = 0)
-in vec3 inPos;
+in vec3 inNormal;
 
 void main() {
-    fragColour = vec4(0.5 * inPos + 0.5, 1.0);
+    //fragColour = vec4(inPos.y / 20.0 * 0.5 + 0.5);
+    fragColour = vec4(inNormal * 0.5 + 0.5, 1.0);
 }

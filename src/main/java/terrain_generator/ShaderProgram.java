@@ -29,7 +29,7 @@ public class ShaderProgram {
 
         if (success == 0) {
             String shaderProgramLog = glGetProgramInfoLog(this.shaderProgram);
-            throw new IllegalStateException("Shader program failed to compile:\n\n" + shaderProgramLog);
+            throw new RuntimeException("Shader program failed to compile:\n\n" + shaderProgramLog);
         }
 
         for (int i = 0; i < paths.length; i++) {
@@ -91,7 +91,7 @@ public class ShaderProgram {
         
         if (success == 0) {
             String shaderLog = glGetShaderInfoLog(shader);
-            throw new IllegalStateException(path.path() + " failed to compile:\n\n" + shaderLog);
+            throw new RuntimeException(path.path() + " failed to compile:\n\n" + shaderLog);
         }
 
         return shader;
