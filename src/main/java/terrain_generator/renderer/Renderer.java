@@ -1,11 +1,13 @@
-package terrain_generator;
+package terrain_generator.renderer;
 
 import org.joml.Matrix4f;
 import org.joml.SimplexNoise;
 import org.joml.Vector3f;
+import terrain_generator.utils.Camera;
+import terrain_generator.RenderSettings;
+import terrain_generator.TerrainState;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL43.*;
 
@@ -75,6 +77,10 @@ public class Renderer {
         this.defaultShader.destroy();
     }
 
+    public void resizeViewport(int x, int y, int width, int height) {
+        glViewport(x, y, width, height);
+    }
+
     public void render() {
         final float radius = 15.0f;
         //this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
@@ -99,10 +105,8 @@ public class Renderer {
 
         this.camera.update();
 
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         this.terrain.bind();
         this.defaultShader.bind();

@@ -1,12 +1,13 @@
-package terrain_generator;
+package terrain_generator.utils;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import terrain_generator.renderer.ShaderProgram;
 
 public class Camera {
     Matrix4f view, projection;
 
-    Vector3f position;
+    public Vector3f position;
 
     float fov, aspect, zNear, zFar;
 

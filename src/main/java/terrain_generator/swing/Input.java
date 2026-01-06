@@ -1,4 +1,4 @@
-package terrain_generator;
+package terrain_generator.swing;
 
 import java.awt.event.*;
 import java.util.Set;

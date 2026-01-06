@@ -1,4 +1,4 @@
-package terrain_generator;
+package terrain_generator.utils;
 
 public class DeltaTime {
     private double deltaTime;

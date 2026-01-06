@@ -7,6 +7,16 @@ application {
     mainClass.set("terrain_generator.Main")
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 group = "org.example"
 version = "1.0-SNAPSHOT"
 

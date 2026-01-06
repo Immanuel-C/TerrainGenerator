@@ -1,6 +1,8 @@
-package terrain_generator;
+package terrain_generator.swing;
 
 import org.lwjgl.opengl.awt.GLData;
+import terrain_generator.RenderSettings;
+import terrain_generator.TerrainState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +50,6 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         this.add(this.infoPane, BorderLayout.WEST);
         this.add(canvas, BorderLayout.CENTER);
 
-
         this.pack();
         this.setVisible(true);
 
@@ -56,7 +57,6 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
     @Override
     public void windowOpened(WindowEvent windowEvent) {
-
     }
 
     @Override

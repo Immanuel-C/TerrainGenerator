@@ -1,4 +1,6 @@
-package terrain_generator;
+package terrain_generator.swing;
+
+import terrain_generator.RenderSettings;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

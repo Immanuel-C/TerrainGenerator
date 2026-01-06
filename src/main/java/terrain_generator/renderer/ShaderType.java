@@ -1,4 +1,4 @@
-package terrain_generator;
+package terrain_generator.renderer;
 
 public enum ShaderType {
     Compute,
