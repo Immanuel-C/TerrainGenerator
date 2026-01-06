@@ -27,12 +27,14 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
     private final Input input;
     private Renderer renderer;
     private Thread renderThread;
+    private TerrainState terrainState;
+    private RenderSettings renderSettings;
 
     private final AtomicReference<Double> fps;
 
     ConcurrentLinkedQueue<TerrainCanvasMessage> messageQueue;
 
-    public TerrainCanvas(GLData data, Input input) {
+    public TerrainCanvas(GLData data, Input input, TerrainState terrainState, RenderSettings renderSettings) {
         super(data);
 
         this.addComponentListener(this);
@@ -47,6 +49,9 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         this.input = input;
         this.fps = new AtomicReference<>(0.0);
 
+        this.terrainState = terrainState;
+        this.renderSettings = renderSettings;
+
         this.renderThread = new Thread(this::run, "Terrain Canvas Render Thread");
         this.renderThread.start();
     }
@@ -54,7 +59,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
     @Override
     public void initGL() {
         GL.createCapabilities();
-        this.renderer = new Renderer((float) Math.toRadians(90.0), this.getWidth(), this.getHeight());
+        this.renderer = new Renderer(this.terrainState, renderSettings, (float) Math.toRadians(90.0), this.getWidth(), this.getHeight());
     }
 
     @Override
@@ -78,14 +83,21 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
 
             try {
                 this.render();
-            } catch (Exception e) {}
+            } catch (Exception _) {}
 
             this.fps.set(1.0 / deltaTime.get());
 
             this.deltaTime.end();
         }
 
-        this.disposeCanvas();
+        try {
+            this.executeInContext(() -> {
+                this.renderer.destroy();
+                return null;
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public double getFps() {
@@ -96,11 +108,6 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         return this.running.get();
     }
 
-    @Override
-    public void disposeCanvas() {
-        this.renderer.destroy();
-        this.platformCanvas.dispose();
-    }
 
     public void stopRunning() {
         this.running.set(false);

@@ -15,19 +15,19 @@ public class Renderer {
 
     Matrix4f model;
 
-    int terrainWidth, terrainLength;
 
     ArrayList<Vertex> vertices;
     ArrayList<Integer> indices;
-    HashMap<Integer, Vector3f> normals;
+    Renderable terrain;
 
-    VertexDescriptorArray vertexDescriptor;
-    VertexBuffer vertexBuffer;
-    IndexBuffer indexBuffer;
+    ArrayList<Vertex> normalDebugLinesVertices;
+    Renderable normalDebugLines;
 
-    boolean shouldGenerateTerrainVertices;
 
-    public Renderer(float fov, float canvasWidth, float canvasHeight) {
+    TerrainState terrainState;
+    RenderSettings renderSettings;
+
+    public Renderer(TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
 
         glEnable(GL_DEPTH_TEST);
 
@@ -43,88 +43,59 @@ public class Renderer {
 
         this.model = new Matrix4f().identity().scale(5);
 
-        this.terrainWidth = 128;
-        this.terrainLength = 128;
 
         this.vertices = new ArrayList<>();
         this.indices = new ArrayList<>();
-        this.normals = new HashMap<>();
+        this.normalDebugLinesVertices = new ArrayList<>();
 
         VertexAttributeDescriptor[] attributeDescriptors = {
                 new VertexAttributeDescriptor(3, 0),
                 new VertexAttributeDescriptor(3, 3 * Float.BYTES),
         };
 
-        this.vertexDescriptor = new VertexDescriptorArray();
-        this.vertexDescriptor.bind();
-
-
+        this.terrainState = terrainState;
+        this.renderSettings = renderSettings;
         this.generateTerrainData();
-        this.shouldGenerateTerrainVertices = false;
 
-        System.out.println("Here");
+        this.terrain = new Renderable(this.vertices, this.indices, 6 * Float.BYTES, attributeDescriptors);
 
-        float[] convertedVertices = new float[this.vertices.size() * 6];
+        ArrayList<Integer> dummyIndices = new ArrayList<>();
+        dummyIndices.add(0);
+        this.normalDebugLines = new Renderable(this.normalDebugLinesVertices, dummyIndices, 6 * Float.BYTES, attributeDescriptors);
 
-        for (int i = 0; i < this.vertices.size() * 6; i += 6)  {
-            Vertex v = this.vertices.get(i / 6);
-            convertedVertices[i] = v.position().x;
-            convertedVertices[i + 1] = v.position().y;
-            convertedVertices[i + 2] = v.position().z;
-
-            convertedVertices[i + 3] = v.normal().x;
-            convertedVertices[i + 4] = v.normal().y;
-            convertedVertices[i + 5] = v.normal().z;
-        }
-
-//        float[] convertedVertices = {
-//                -0.5f, -0.5f, 0.0f, 1.0f,
-//                -0.5f,  0.5f, 0.0f, 1.0f,
-//                 0.5f,  0.5f, 0.0f, 1.0f,
-//                 0.5f, -0.5f, 0.0f, 1.0f,
-//        };
-
-        this.vertexBuffer = new VertexBuffer(convertedVertices);
-        this.vertexBuffer.bind();
-
-        this.vertexDescriptor.addVertexDescriptor(6 * Float.BYTES, attributeDescriptors);
-
-
-        int[] convertedIndices = new int[this.indices.size()];
-
-        for (int i = 0; i < this.indices.size(); i++)  {
-            convertedIndices[i] = this.indices.get(i);
-        }
-
-//        int[] convertedIndices = {
-//            0, 1, 2, // BL, TL, TR
-//            2, 3, 0  // TR, BR, BL
-//        };
-
-        this.indexBuffer = new IndexBuffer(convertedIndices);
-
-        VertexDescriptorArray.unBind();
-        IndexBuffer.unBind();
-
-        this.camera.position.y += 10.0f;
-        this.camera.position.z += 10.0f;
+        this.camera.position.y += 5.0f;
+        this.camera.position.z += 5.0f;
 
 
         this.model.scale(0.01f);
-
     }
 
+    // TODO: Destroy all opengl objects.
     public void destroy() {
         this.defaultShader.destroy();
     }
 
     public void render() {
         final float radius = 15.0f;
-        this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
-        this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
+        //this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
+        //this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
 
 
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (this.renderSettings.wireFrame)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+        if (this.terrainState.shouldGenerateTerrain) {
+            this.terrainState.shouldGenerateTerrain = false;
+            this.generateTerrainData();
+            this.terrain.uploadData(this.vertices, this.indices);
+            ArrayList<Integer> dummyIndices = new ArrayList<>();
+            dummyIndices.add(0);
+            this.normalDebugLines.uploadData(this.normalDebugLinesVertices, dummyIndices);
+        }
+
 
         this.camera.update();
 
@@ -133,15 +104,14 @@ public class Renderer {
         glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
 
 
-        this.vertexDescriptor.bind();
-        this.vertexBuffer.bind();
-        this.indexBuffer.bind();
+        this.terrain.bind();
         this.defaultShader.bind();
 
 
         this.camera.uploadViewMatrix(this.defaultShader, "view");
         this.camera.uploadProjectionMatrix(this.defaultShader, "proj");
         this.defaultShader.uploadMatrix4f(this.model, "model");
+        this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);
 
@@ -150,14 +120,21 @@ public class Renderer {
         VertexBuffer.unBind();
         VertexDescriptorArray.unBind();
 
+        this.normalDebugLines.bind();
+        this.defaultShader.bind();
+
+        glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
+
     }
 
     private void generateTerrainData() {
-        int width = 256, length = 256;
+        this.vertices.clear();
+        this.indices.clear();
+        this.normalDebugLinesVertices.clear();
 
         // Create a grid of
-        for (int x = -width / 2; x < width / 2; x++)  {
-            for (int z = -length / 2; z < length / 2; z++) {
+        for (int x = -this.terrainState.width / 2; x < this.terrainState.width / 2; x++)  {
+            for (int z = -this.terrainState.length / 2; z < this.terrainState.length / 2; z++) {
                 this.vertices.add(
                         new Vertex(
                                 new Vector3f(x, this.noise(x, z), z),
@@ -167,12 +144,12 @@ public class Renderer {
             }
         }
 
-        for (int row = 0; row < width - 1; row++) {
-            for (int column = 0; column < length - 1; column++) {
+        for (int row = 0; row < this.terrainState.width - 1; row++) {
+            for (int column = 0; column < this.terrainState.length - 1; column++) {
                 // Top Left
-                int v1 = row * length + column;
+                int v1 = row * this.terrainState.length + column;
                 // Bottom Left
-                int v2 = v1 + length;
+                int v2 = v1 + this.terrainState.length;
                 // Top Right
                 int v3 = v1 + 1;
                 // Bottom Right
@@ -214,24 +191,25 @@ public class Renderer {
         }
 
         for (int i = 0; i < this.vertices.size(); i++) {
-            this.vertices.get(i).normal().normalize();
+            Vertex v = this.vertices.get(i);
+            v.normal().normalize();
+
+            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()), new Vector3f(0.5f)));
+            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()).add(v.normal()), new Vector3f(0.5f)));
+
         }
 
     }
 
     private float noise(float x, float y) {
-        int octaves = 12;
-        float lacunarity = 1.4f;   // frequency multiplier
-        float persistence = 0.5f;  // amplitude multiplier
-
         float height = 0.0f;
-        float frequency = 0.01f;
-        float amplitude = 20.0f;
+        float frequency = this.terrainState.frequency;
+        float amplitude = this.terrainState.amplitude;
 
-        for (int i = 0; i < octaves; i++) {
-            height += SimplexNoise.noise(x * frequency, y * frequency) * amplitude;
-            frequency *= lacunarity;
-            amplitude *= persistence;
+        for (int i = 0; i < this.terrainState.octaves; i++) {
+            height += amplitude * SimplexNoise.noise(x * frequency, y * frequency) + amplitude / 2;
+            frequency *= this.terrainState.frequencyMultiplier;
+            amplitude *= this.terrainState.amplitudeMultiplier;
         }
 
 

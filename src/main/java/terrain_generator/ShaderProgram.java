@@ -67,6 +67,15 @@ public class ShaderProgram {
         glUniformMatrix4fv(location, false, uniformBuffer);
     }
 
+    public void uploadFloat(float val, String uniformName) {
+        int location = glGetUniformLocation(this.shaderProgram, uniformName);
+
+        if (location == -1)
+            throw new RuntimeException("Uniform name provided " + uniformName + " is not found in program " + this.shaderProgram + "\n");
+
+        glUniform1f(location, val);
+    }
+
     private int createShader(ShaderInfo path) {
         int type = switch (path.type()) {
             case Compute -> GL_COMPUTE_SHADER;

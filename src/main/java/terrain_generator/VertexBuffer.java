@@ -9,12 +9,15 @@ public class VertexBuffer {
     public VertexBuffer(float[] vertices) {
         this.vbo = glGenBuffers();
 
+        this.uploadData(vertices);
+    }
+
+    public void uploadData(float[] vertices) {
         this.bind();
 
-        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW);
 
         VertexBuffer.unBind();
-
     }
 
     public void bind() {

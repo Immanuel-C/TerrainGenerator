@@ -22,6 +22,9 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(1280, 720));
 
+        TerrainState terrainState = new TerrainState();
+        RenderSettings renderSettings = new RenderSettings();
+
         GLData data = new GLData();
         data.majorVersion = 4;
         data.minorVersion = 3;
@@ -31,16 +34,16 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         data.debug = true;
         data.profile = GLData.Profile.CORE;
 
-        this.canvas = new TerrainCanvas(data, input);
+        this.canvas = new TerrainCanvas(data, input, terrainState, renderSettings);
 
         this.infoPane = new JTabbedPane();
         this.infoPane.setPreferredSize(new Dimension(300, 720));
 
-        canvasUi = new CanvasUi(canvas);
-        RendererDebugUi rendererDebugUi = new RendererDebugUi();
+        canvasUi = new CanvasUi(canvas, terrainState);
+        RenderSettingsUi renderSettingsUi = new RenderSettingsUi(renderSettings);
 
         this.infoPane.addTab("Terrain Data", canvasUi);
-        this.infoPane.addTab("Renderer Debug Data", rendererDebugUi);
+        this.infoPane.addTab("Render Settings", renderSettingsUi);
 
         this.add(this.infoPane, BorderLayout.WEST);
         this.add(canvas, BorderLayout.CENTER);
@@ -48,13 +51,6 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
         this.pack();
         this.setVisible(true);
-
-    }
-
-    @Override
-    public void dispose() {
-        this.canvas.stopRunning();
-        super.dispose();
 
     }
 
