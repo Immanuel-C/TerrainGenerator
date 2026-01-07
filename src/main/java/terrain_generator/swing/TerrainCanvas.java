@@ -10,6 +10,7 @@ import terrain_generator.*;
 import terrain_generator.renderer.Renderer;
 import terrain_generator.utils.DeltaTime;
 
+import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -57,14 +58,8 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
 
     @Override
     public void initGL() {
-
-
         GL.createCapabilities();
-
-
         this.renderer = new Renderer(this.terrainState, renderSettings, (float) Math.toRadians(90.0), this.getWidth(), this.getHeight());
-
-
     }
 
     @Override
@@ -86,7 +81,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         while (this.isRunning()) {
             // OpenGL needs the component to be visible and ready to use before it can start rendering.
             // The layer between OpenGL and Swing locks the drawing surface so Swing cannot touch it but
-            // this operation fails if the canvas is not valid.
+            // this operation fails if the canvas is not valid since the drawing surface hasn't been created yet.
             if (!this.isValid()) {
                 // Tell the OS that it can leave this thread safely and do other tasks
                 // since we cannot do anything on this thread.
@@ -137,6 +132,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     @Override

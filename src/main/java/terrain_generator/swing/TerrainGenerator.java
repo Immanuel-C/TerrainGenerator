@@ -18,9 +18,10 @@ public class TerrainGenerator extends JFrame implements WindowListener {
     public TerrainGenerator() throws InterruptedException {
         super("Terrain Generator");
 
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+
         this.addWindowListener(this);
 
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(1280, 720));
 
@@ -44,7 +45,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         canvasUi = new CanvasUi(canvas, terrainState);
         RenderSettingsUi renderSettingsUi = new RenderSettingsUi(renderSettings);
 
-        this.infoPane.addTab("Terrain Data", canvasUi);
+        this.infoPane.addTab("Terrain Data", this.canvasUi);
         this.infoPane.addTab("Render Settings", renderSettingsUi);
 
         this.add(this.infoPane, BorderLayout.WEST);
@@ -63,6 +64,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
     public void windowClosing(WindowEvent windowEvent) {
         this.canvasUi.stopRunning();
         this.canvas.stopRunning();
+        this.dispose();
     }
 
     @Override

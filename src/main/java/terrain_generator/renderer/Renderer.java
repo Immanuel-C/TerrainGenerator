@@ -32,6 +32,8 @@ public class Renderer {
     public Renderer(TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
 
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
 
 
         System.out.println("Here");
@@ -148,6 +150,7 @@ public class Renderer {
             }
         }
 
+        // Compute 2 triangles from the terrain vertices
         for (int row = 0; row < this.terrainState.width - 1; row++) {
             for (int column = 0; column < this.terrainState.length - 1; column++) {
                 // Top Left
@@ -159,9 +162,12 @@ public class Renderer {
                 // Bottom Right
                 int v4 = v2 + 1;
 
-                this.indices.add(v3);
-                this.indices.add(v1);
+                // First Triangle
+
                 this.indices.add(v2);
+                this.indices.add(v1);
+                this.indices.add(v3);
+
 
                 Vertex v1Vertex = this.vertices.get(v1);
                 Vertex v2Vertex = this.vertices.get(v2);
@@ -176,9 +182,11 @@ public class Renderer {
                 v2Vertex.normal().add(normal);
                 v3Vertex.normal().add(normal);
 
-                this.indices.add(v2);
-                this.indices.add(v4);
+                // 2nd Triangle
+
                 this.indices.add(v3);
+                this.indices.add(v4);
+                this.indices.add(v2);
 
                 Vertex v4Vertex = this.vertices.get(v4);
 

@@ -14,12 +14,15 @@ public class CanvasUi extends JPanel {
 
     TerrainCanvas canvas;
     TerrainState terrainState;
+    DropDownMenu terrainSettingsDropDown;
+
 
     public CanvasUi(TerrainCanvas canvas, TerrainState terrainState) {
         this.fpsLabel = new JLabel("FPS: 1");
         this.fpsLabel.setForeground(Color.black);
 
         this.terrainState = terrainState;
+        this.terrainSettingsDropDown = new DropDownMenu("Terrain Settings");
 
         this.add(fpsLabel);
 
@@ -117,13 +120,14 @@ public class CanvasUi extends JPanel {
         });
 
 
-        this.add(octaveSpinner);
-        this.add(frequencySlider);
-        this.add(amplitudeSlider);
-        this.add(frequencyMultiplierSpinner);
-        this.add(amplitudeMultiplierSpinner);
-        this.add(widthSpinner);
-        this.add(lengthSpinner);
+        this.terrainSettingsDropDown.add(octaveSpinner);
+        this.terrainSettingsDropDown.add(frequencySlider);
+        this.terrainSettingsDropDown.add(amplitudeSlider);
+        this.terrainSettingsDropDown.add(frequencyMultiplierSpinner);
+        this.terrainSettingsDropDown.add(amplitudeMultiplierSpinner);
+        this.terrainSettingsDropDown.add(widthSpinner);
+        this.terrainSettingsDropDown.add(lengthSpinner);
+        this.add(this.terrainSettingsDropDown);
 
         this.canvas = canvas;
 
