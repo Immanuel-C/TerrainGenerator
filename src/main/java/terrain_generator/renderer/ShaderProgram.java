@@ -3,6 +3,7 @@ package terrain_generator.renderer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import terrain_generator.utils.Resource;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -11,7 +12,7 @@ import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL43.*;
 
-public class ShaderProgram {
+public class ShaderProgram implements Resource {
     int shaderProgram;
 
     public ShaderProgram(ShaderInfo[] paths) {
@@ -46,7 +47,8 @@ public class ShaderProgram {
         glUseProgram(0);
     }
 
-    void destroy() {
+    @Override
+    public void destroy() {
         glDeleteProgram(this.shaderProgram);
     }
 

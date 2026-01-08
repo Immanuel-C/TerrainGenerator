@@ -67,8 +67,7 @@ public class Renderer {
         dummyIndices.add(0);
         this.normalDebugLines = new Renderable(this.normalDebugLinesVertices, dummyIndices, 6 * Float.BYTES, attributeDescriptors);
 
-        this.camera.position.y += 5.0f;
-        this.camera.position.z += 5.0f;
+        this.camera.position.y += 10.0f;
 
 
         this.model.scale(0.01f);
@@ -87,11 +86,10 @@ public class Renderer {
 
     public void render() {
         final float radius = 15.0f;
-        //this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
-        //this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
-
-        this.lightPos.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
-        this.lightPos.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
+        this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
+        this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
+        this.lightPos.x = (float) (Math.sin(System.currentTimeMillis() / 500.0) * radius);
+        this.lightPos.z = (float) (Math.cos(System.currentTimeMillis() / 500.0) * radius);
 
 
 
@@ -125,14 +123,14 @@ public class Renderer {
         this.defaultShader.uploadMatrix4f(this.model, "model");
         this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
         this.defaultShader.uploadVec3(lightPos, "lightPos");
-        this.defaultShader.uploadVec3(new Vector3f(0.5f, 0.6f, 0.7f), "lightColour");
+        this.defaultShader.uploadVec3(new Vector3f(1.0f), "lightColour");
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);
 
         this.normalDebugLines.bind();
         this.defaultShader.bind();
 
-       // glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
+        glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
 
     }
 
@@ -209,8 +207,8 @@ public class Renderer {
             Vertex v = this.vertices.get(i);
             v.normal().normalize();
 
-            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()), new Vector3f(0.5f)));
-            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()).add(v.normal()), new Vector3f(0.5f)));
+            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()), new Vector3f(v.normal())));
+            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()).add(v.normal()), new Vector3f(v.normal())));
 
         }
 
