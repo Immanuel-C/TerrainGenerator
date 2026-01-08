@@ -2,6 +2,7 @@ package terrain_generator.swing;
 
 
 
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
 
 import org.lwjgl.opengl.awt.AWTGLCanvas;
@@ -10,16 +11,18 @@ import terrain_generator.*;
 import terrain_generator.renderer.Renderer;
 import terrain_generator.utils.DeltaTime;
 
+import javax.lang.model.type.UnionType;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.lwjgl.system.MemoryUtil.memByteBuffer;
 
-public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
+public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Executor {
     private AtomicBoolean running;
     private DeltaTime deltaTime;
     private final Input input;
@@ -31,6 +34,8 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
     private final AtomicReference<Double> fps;
 
     ConcurrentLinkedQueue<TerrainCanvasMessage> messageQueue;
+    ConcurrentLinkedQueue<Runnable> glTasks;
+
 
     public TerrainCanvas(GLData data, Input input, TerrainState terrainState, RenderSettings renderSettings) {
         super(data);
@@ -44,6 +49,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         this.running = new AtomicBoolean(true);
         this.deltaTime = new DeltaTime();
         this.messageQueue = new ConcurrentLinkedQueue<>();
+        this.glTasks = new ConcurrentLinkedQueue<>();
         this.input = input;
         this.fps = new AtomicReference<>(0.0);
 
@@ -64,7 +70,6 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
 
     @Override
     public void paintGL() {
-        this.renderer.render();
 
         TerrainCanvasMessage message;
         while ((message = messageQueue.poll()) != null) {
@@ -73,6 +78,14 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
                 default -> {}
             }
         }
+
+        Runnable glTask;
+        while ((glTask = this.glTasks.poll()) != null) {
+            glTask.run();
+        }
+
+        this.renderer.render();
+
 
         swapBuffers();
     }
@@ -165,5 +178,10 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
         synchronized (this) {
             return super.isDisplayable();
         }
+    }
+
+    @Override
+    public void execute(@NotNull Runnable runnable) {
+        this.glTasks.add(runnable);
     }
 }

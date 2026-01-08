@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import terrain_generator.utils.Camera;
 import terrain_generator.RenderSettings;
 import terrain_generator.TerrainState;
+import terrain_generator.utils.ResourceType;
 
 import java.util.ArrayList;
 
@@ -38,8 +39,8 @@ public class Renderer {
 
         System.out.println("Here");
         ShaderInfo[] shaderInfos = {
-                new ShaderInfo("assets/shaders/default.vert", ShaderType.Vertex),
-                new ShaderInfo("assets/shaders/default.frag", ShaderType.Fragment),
+                new ShaderInfo("assets/shaders/default.vert", ResourceType.VertexShader),
+                new ShaderInfo("assets/shaders/default.frag", ResourceType.FragmentShader),
         };
 
         this.defaultShader = new ShaderProgram(shaderInfos);

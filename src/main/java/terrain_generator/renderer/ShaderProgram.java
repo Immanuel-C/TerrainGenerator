@@ -5,23 +5,20 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import terrain_generator.utils.Resource;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL43.*;
 
 public class ShaderProgram implements Resource {
     int shaderProgram;
 
-    public ShaderProgram(ShaderInfo[] paths) {
+    public ShaderProgram(ShaderSource[] sources) {
         this.shaderProgram = glCreateProgram();
 
-        int[] shaders = new int[paths.length];
+        int[] shaders = new int[sources.length];
 
-        for (int i = 0; i < paths.length; i++) {
-            shaders[i] = this.createShader(paths[i]);
+        for (int i = 0; i < sources.length; i++) {
+            shaders[i] = this.createShader(sources[i]);
             glAttachShader(this.shaderProgram, shaders[i]);
         }
 
@@ -34,7 +31,7 @@ public class ShaderProgram implements Resource {
             throw new RuntimeException("Shader program failed to compile:\n\n" + shaderProgramLog);
         }
 
-        for (int i = 0; i < paths.length; i++) {
+        for (int i = 0; i < sources.length; i++) {
             glDeleteShader(shaders[i]);
         }
     }
@@ -82,31 +79,25 @@ public class ShaderProgram implements Resource {
         return location;
     }
 
-    private int createShader(ShaderInfo path) {
-        int type = switch (path.type()) {
-            case Compute -> GL_COMPUTE_SHADER;
-            case Vertex -> GL_VERTEX_SHADER;
-            case Fragment -> GL_FRAGMENT_SHADER;
+    private int createShader(ShaderSource source) {
+        int type = switch (source.getType()) {
+            case ComputeShader -> GL_COMPUTE_SHADER;
+            case VertexShader -> GL_VERTEX_SHADER;
+            case FragmentShader -> GL_FRAGMENT_SHADER;
+            default -> throw new RuntimeException("Invalid Shader Type: " + source.getType());
         };
 
         int shader = glCreateShader(type);
 
-        String shaderSource;
 
-        try {
-             shaderSource = Files.readString(Path.of(path.path()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        glShaderSource(shader, shaderSource);
+        glShaderSource(shader, source.getSource());
         glCompileShader(shader);
 
         int success = glGetShaderi(shader, GL_COMPILE_STATUS);
         
         if (success == 0) {
             String shaderLog = glGetShaderInfoLog(shader);
-            throw new RuntimeException(path.path() + " failed to compile:\n\n" + shaderLog);
+            throw new RuntimeException(source.getSource() + " failed to compile:\n\n" + shaderLog);
         }
 
         return shader;

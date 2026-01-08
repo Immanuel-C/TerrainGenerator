@@ -1,3 +1,5 @@
 package terrain_generator.renderer;
 
-public record ShaderInfo(String path, ShaderType type) {}
+import terrain_generator.utils.ResourceType;
+
+public record ShaderInfo(String path, ResourceType type) {}
