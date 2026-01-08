@@ -32,7 +32,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         data.majorVersion = 4;
         data.minorVersion = 3;
         data.doubleBuffer = true;
-        data.samples = 8;
+        data.samples = 4;
         data.swapInterval = 0;
         data.debug = true;
         data.profile = GLData.Profile.CORE;

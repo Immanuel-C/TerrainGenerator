@@ -83,10 +83,16 @@ public class Renderer {
         glViewport(x, y, width, height);
     }
 
+    Vector3f lightPos = new Vector3f(0.0f, 10.0f, 0.0f);
+
     public void render() {
         final float radius = 15.0f;
         //this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
         //this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
+
+        this.lightPos.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
+        this.lightPos.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
+
 
 
         if (this.renderSettings.wireFrame)
@@ -118,18 +124,15 @@ public class Renderer {
         this.camera.uploadProjectionMatrix(this.defaultShader, "proj");
         this.defaultShader.uploadMatrix4f(this.model, "model");
         this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
+        this.defaultShader.uploadVec3(lightPos, "lightPos");
+        this.defaultShader.uploadVec3(new Vector3f(0.5f, 0.6f, 0.7f), "lightColour");
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);
-
-        ShaderProgram.unBind();
-        IndexBuffer.unBind();
-        VertexBuffer.unBind();
-        VertexDescriptorArray.unBind();
 
         this.normalDebugLines.bind();
         this.defaultShader.bind();
 
-        glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
+       // glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
 
     }
 

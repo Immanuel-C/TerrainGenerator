@@ -82,7 +82,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
             // OpenGL needs the component to be visible and ready to use before it can start rendering.
             // The layer between OpenGL and Swing locks the drawing surface so Swing cannot touch it but
             // this operation fails if the canvas is not valid since the drawing surface hasn't been created yet.
-            if (!this.isValid()) {
+            if (!this.isDisplayable()) {
                 // Tell the OS that it can leave this thread safely and do other tasks
                 // since we cannot do anything on this thread.
                 Thread.yield();
@@ -97,9 +97,8 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
                 throw new RuntimeException(e);
             }
 
-            this.fps.set(1.0 / deltaTime.get());
-
             this.deltaTime.end();
+            this.fps.set(1.0 / deltaTime.get());
         }
 
         try {
@@ -160,11 +159,11 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener {
 
 
     @Override
-    public boolean isValid() {
+    public boolean isDisplayable() {
         // Blocking on the EDT is considered bad practice but Swing does not provide a
         // listener to check if the component is valid.
         synchronized (this) {
-            return super.isValid();
+            return super.isDisplayable();
         }
     }
 }
