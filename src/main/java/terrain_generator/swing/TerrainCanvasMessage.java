@@ -1,5 +1,4 @@
 package terrain_generator.swing;
 
-public enum TerrainCanvasMessage {
-    Resized,
-}
+
+public record TerrainCanvasMessage(Runnable data) {}

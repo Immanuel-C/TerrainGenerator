@@ -4,6 +4,7 @@ public enum ResourceType {
     VertexShader,
     FragmentShader,
     ComputeShader,
+    ShaderProgram,
     Texture,
     Unknown,
 }

@@ -2,25 +2,21 @@ package terrain_generator.swing;
 
 
 
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
 
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
 import terrain_generator.*;
 import terrain_generator.renderer.Renderer;
+import terrain_generator.utils.AsyncResourceManager;
 import terrain_generator.utils.DeltaTime;
 
-import javax.lang.model.type.UnionType;
-import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.lwjgl.system.MemoryUtil.memByteBuffer;
 
 public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Executor {
     private AtomicBoolean running;
@@ -33,8 +29,9 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
 
     private final AtomicReference<Double> fps;
 
-    ConcurrentLinkedQueue<TerrainCanvasMessage> messageQueue;
+    // These are tasks that must be run inside the OpenGL context.
     ConcurrentLinkedQueue<Runnable> glTasks;
+    AsyncResourceManager resourceManager;
 
 
     public TerrainCanvas(GLData data, Input input, TerrainState terrainState, RenderSettings renderSettings) {
@@ -48,8 +45,8 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
 
         this.running = new AtomicBoolean(true);
         this.deltaTime = new DeltaTime();
-        this.messageQueue = new ConcurrentLinkedQueue<>();
         this.glTasks = new ConcurrentLinkedQueue<>();
+        this.resourceManager = new AsyncResourceManager("assets/", this);
         this.input = input;
         this.fps = new AtomicReference<>(0.0);
 
@@ -65,29 +62,21 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
     @Override
     public void initGL() {
         GL.createCapabilities();
-        this.renderer = new Renderer(this.terrainState, renderSettings, (float) Math.toRadians(90.0), this.getWidth(), this.getHeight());
+        this.renderer = new Renderer(this.resourceManager, this.terrainState, renderSettings, (float) Math.toRadians(90.0), this.getWidth(), this.getHeight());
     }
 
     @Override
     public void paintGL() {
+        this.renderer.render();
+        runGLTasks();
+        swapBuffers();
+    }
 
-        TerrainCanvasMessage message;
-        while ((message = messageQueue.poll()) != null) {
-            switch (message) {
-                case Resized -> this.renderer.resizeViewport(0, 0, this.getWidth(), this.getHeight());
-                default -> {}
-            }
-        }
-
+    private void runGLTasks() {
         Runnable glTask;
-        while ((glTask = this.glTasks.poll()) != null) {
+        while ((glTask = glTasks.poll()) != null) {
             glTask.run();
         }
-
-        this.renderer.render();
-
-
-        swapBuffers();
     }
 
     public void run() {
@@ -114,8 +103,13 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
             this.fps.set(1.0 / deltaTime.get());
         }
 
+        this.resourceManager.stopRunning();
+
         try {
             this.executeInContext(() -> {
+                // Finish glTasks
+                runGLTasks();
+
                 this.renderer.destroy();
                 return null;
             });
@@ -147,12 +141,27 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
 
     }
 
+
     @Override
-    public void disposeCanvas() {}
+    public boolean isDisplayable() {
+        // Blocking on the EDT is considered bad practice but Swing does not provide a
+        // listener to check if the component is displayable.
+        synchronized (this) {
+            return super.isDisplayable();
+        }
+    }
+
+
+    @Override
+    // Suppresses IntelliJ's warning of not using the @NotNull annotation. This annotation is JetBrains specific making it non-portable.
+    public void execute(@SuppressWarnings("all") Runnable runnable) {
+        this.glTasks.add(runnable);
+    }
+
 
     @Override
     public void componentResized(ComponentEvent componentEvent) {
-        this.messageQueue.add(TerrainCanvasMessage.Resized);
+        this.glTasks.add(() -> this.renderer.resizeViewport(0, 0, this.getWidth(), this.getHeight()));
     }
 
     @Override
@@ -170,18 +179,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
 
     }
 
-
     @Override
-    public boolean isDisplayable() {
-        // Blocking on the EDT is considered bad practice but Swing does not provide a
-        // listener to check if the component is valid.
-        synchronized (this) {
-            return super.isDisplayable();
-        }
-    }
+    public void disposeCanvas() {}
 
-    @Override
-    public void execute(@NotNull Runnable runnable) {
-        this.glTasks.add(runnable);
-    }
 }

@@ -3,9 +3,11 @@ package terrain_generator.renderer;
 import org.joml.Matrix4f;
 import org.joml.SimplexNoise;
 import org.joml.Vector3f;
+import terrain_generator.utils.AsyncResourceManager;
 import terrain_generator.utils.Camera;
 import terrain_generator.RenderSettings;
 import terrain_generator.TerrainState;
+import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
 import java.util.ArrayList;
@@ -30,20 +32,24 @@ public class Renderer {
     TerrainState terrainState;
     RenderSettings renderSettings;
 
-    public Renderer(TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
+    AsyncResourceManager resourceManager;
+
+    public Renderer(AsyncResourceManager resourceManager, TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
+        this.resourceManager = resourceManager;
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
 
-        System.out.println("Here");
         ShaderInfo[] shaderInfos = {
                 new ShaderInfo("assets/shaders/default.vert", ResourceType.VertexShader),
                 new ShaderInfo("assets/shaders/default.frag", ResourceType.FragmentShader),
         };
 
-        this.defaultShader = new ShaderProgram(shaderInfos);
+        this.resourceManager.loadShaderProgram("defaultShader", shaderInfos);
+
+
         this.camera = new Camera(new Vector3f(0.0f, 0.0f, 2.0f), fov, canvasWidth / canvasHeight, 0.1f, 100.0f);
 
         this.model = new Matrix4f().identity().scale(5);
@@ -76,7 +82,6 @@ public class Renderer {
 
     // TODO: Destroy all opengl objects.
     public void destroy() {
-        this.defaultShader.destroy();
     }
 
     public void resizeViewport(int x, int y, int width, int height) {
@@ -86,6 +91,14 @@ public class Renderer {
     Vector3f lightPos = new Vector3f(0.0f, 10.0f, 0.0f);
 
     public void render() {
+        if (this.resourceManager.isResourceAvailable("defaultShader")) {
+            if (this.defaultShader == null)
+                this.defaultShader = (ShaderProgram) this.resourceManager.getResource("defaultShader").get();
+        } else {
+            return;
+        }
+
+
         final float radius = 15.0f;
         this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
         this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);

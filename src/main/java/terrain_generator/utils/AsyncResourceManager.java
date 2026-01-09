@@ -1,12 +1,14 @@
 package terrain_generator.utils;
 
-import org.jetbrains.annotations.Nullable;
 import terrain_generator.renderer.ShaderInfo;
 import terrain_generator.renderer.ShaderProgram;
-import terrain_generator.renderer.ShaderSource;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -15,18 +17,19 @@ public class AsyncResourceManager {
     private Thread watcherThread;
     private WatchService watcher;
 
-    private ConcurrentLinkedDeque<CompletableFuture<Resource>> resourceFutures;
     private ConcurrentHashMap<String, Resource> resources;
+    private ConcurrentHashMap<Resource, Set<Resource>> dependentResources;
 
     private AtomicBoolean running;
-    private Executor futureExecutor, glExecutor;
+    private ExecutorService futureExecutor;
+    private Executor glExecutor;
 
     public AsyncResourceManager(String resourceDirectory, Executor glExecutor) {
         this.glExecutor = glExecutor;
-        this.futureExecutor = Executors.newSingleThreadExecutor();
+        this.futureExecutor = Executors.newCachedThreadPool();
         this.watcherThread = new Thread(this::watchFiles, "Resource Manager File Watcher Thread");
         this.resources = new ConcurrentHashMap<>();
-        this.resourceFutures = new ConcurrentLinkedDeque<>();
+        this.dependentResources = new ConcurrentHashMap<>();
         this.running = new AtomicBoolean(true);
         try {
             this.watcher = FileSystems.getDefault().newWatchService();
@@ -42,38 +45,20 @@ public class AsyncResourceManager {
 
         // Recursively go into the resource directory find every folder and add a watcher
         // for each folder.
-        try (Stream<Path> pathStream = Files.walk(resourceDirectoryPath)) {
-            pathStream.forEach(path -> {
-                if (Files.isDirectory(path)) {
-                    try {
-                        path.register(
-                                this.watcher,
-                                StandardWatchEventKinds.ENTRY_MODIFY,
-                                StandardWatchEventKinds.ENTRY_CREATE,
-                                StandardWatchEventKinds.ENTRY_DELETE
-                        );
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else if (Files.isRegularFile(path)) {
-                    switch (AsyncResourceManager.resourceType(path)) {
-                        case VertexShader, FragmentShader, ComputeShader -> {
-                            this.loadFile(path);
-                        }
-                        case Texture -> {
-                            System.err.println("TODO: Add texture loading support.");
-                        }
-                        case Unknown -> {
-                            System.out.println("Unknown Resource Type: " + path);
-                        }
-                    }
-                }
-            });
+        try (Stream<Path> pathStream = Files.walk(resourceDirectoryPath).filter(Files::isDirectory)) {
+            for (Path path: (Iterable<Path>) pathStream::iterator) {
+                path.register(
+                        this.watcher,
+                        StandardWatchEventKinds.ENTRY_MODIFY,
+                        StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_DELETE
+                );
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-
+//        this.watcherThread.start();
     }
 
     public void watchFiles() {
@@ -94,57 +79,75 @@ public class AsyncResourceManager {
         }
     }
 
+    // This should be called before the glExecutor is destroyed
     public void stopRunning() {
         this.running.set(false);
         // Interrupt the thread since BlockingQueue::take blocks the thread must be unblocked through an interrupt.
-        this.watcherThread.interrupt();
+//        this.watcherThread.interrupt();
+//
+//        try {
+//            this.watcherThread.join();
+//            this.watcher.close();
+//        } catch (InterruptedException | IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
-        try {
-            this.watcherThread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            this.watcher.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (Resource resource: this.resources.values()) {
-            resource.destroy();
-        }
+        glExecutor.execute(() -> {
+            for (Resource resource: this.resources.values()) {
+                resource.destroy();
+            }
+        });
+        this.futureExecutor.shutdown();
     }
 
 
 
     public void loadShaderProgram(String name, ShaderInfo[] shaderInfos) {
         CompletableFuture
-                .supplyAsync(() -> { // Load on a dedicated Resource IO thread
-                    ShaderSource[] sources = new ShaderSource[shaderInfos.length];
+                .supplyAsync(() -> { // Load on dedicated Resource IO threads
+                    String[] sources = new String[shaderInfos.length];
+                    for (int i = 0; i < shaderInfos.length; i++) {
+                        try {
+                            sources[i] = Files.readString(Path.of(shaderInfos[i].getPath()));
 
-                    try {
-                        for (int i = 0; i < shaderInfos.length; i++)
-                            sources[i] = new ShaderSource(shaderInfos[i].type(), Path.of(shaderInfos[i].path()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                            for (int y = 0; y < 100; y++) {
+                                Files.readAllBytes(Path.of("assets/texture/img.png"));
+                            }
+                        } catch (IOException e) {
+                            throw new CompletionException(e);
+                        }
                     }
 
-                    return sources;
+
+                    return new Pair<>(shaderInfos, sources);
                 }, this.futureExecutor)
-                // Then create the actual OpenGL object inside the Render thread.
-                .thenApplyAsync(ShaderProgram::new, this.glExecutor)
-                // Then put the resources into the resources hash map that can then be retrieved by the renderer.
-                .thenAcceptAsync(shaderProgram -> this.resources.put(name, shaderProgram), this.futureExecutor)
-                // If any stage fails throw a new Runtime Exception.
-                .exceptionally(e -> {
-                    throw new RuntimeException(e);
-                });
+                // Then create the actual OpenGL object inside the Render thread and when the OpenGL context is current.
+                // Then add it to the resources hash map.
+                .thenAcceptAsync(infoSourcePair -> {
+                    ShaderProgram shaderProgram = new ShaderProgram(infoSourcePair.first(), infoSourcePair.second());
+                    this.resources.put(name, shaderProgram);
+
+                    for (ShaderInfo info: infoSourcePair.first()) {
+                        if (this.dependentResources.containsKey(info)) {
+                            this.dependentResources.get(info).add(shaderProgram);
+                        } else {
+                            this.dependentResources.put(info, new HashSet<>(List.of(shaderProgram)));
+                        }
+                    }
+                }, this.glExecutor)
+                .exceptionally(e -> { e.printStackTrace(); return null; });
 
     }
 
-    public @Nullable Resource getResource(String name) {
-        return this.resources.get(name);
+    // If a resource does not exist or is not ready then .get will return null.
+    // It is wrapped in an Optional as we want to force the user of the method to
+    // check if the return value is invalid.
+    public Optional<Resource> getResource(String name) {
+        return Optional.ofNullable(this.resources.get(name));
+    }
+
+    public boolean isResourceAvailable(String name) {
+        return this.resources.containsKey(name);
     }
 
 
