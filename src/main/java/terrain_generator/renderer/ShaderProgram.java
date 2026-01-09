@@ -1,12 +1,15 @@
 package terrain_generator.renderer;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import terrain_generator.UniformNotFoundException;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
 import java.lang.ref.Reference;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL43.*;
@@ -70,7 +73,7 @@ public class ShaderProgram extends Resource {
         return this.shaderProgram;
     }
 
-    public void uploadMatrix4f(Matrix4f matrix, String uniformName) {
+    public void uploadMatrix4f(Matrix4f matrix, String uniformName)  throws UniformNotFoundException {
         // This is garbage collected so no need for to free.
         FloatBuffer uniformBuffer = BufferUtils.createFloatBuffer(4*4);
         uniformBuffer = matrix.get(uniformBuffer);
@@ -79,22 +82,32 @@ public class ShaderProgram extends Resource {
         glUniformMatrix4fv(this.getUniformLocation(uniformName), false, uniformBuffer);
     }
 
-    public void uploadFloat(float val, String uniformName) {
+    public void uploadMatrix3f(Matrix3f matrix, String uniformName)  throws UniformNotFoundException {
+        // This is garbage collected so no need for to free.
+        FloatBuffer uniformBuffer = BufferUtils.createFloatBuffer(3*3);
+        uniformBuffer = matrix.get(uniformBuffer);
+
+        // Transpose the matrix from row major to column major. Since JOML is already in column major this is not needed.
+        glUniformMatrix3fv(this.getUniformLocation(uniformName), false, uniformBuffer);
+    }
+
+    public void uploadFloat(float val, String uniformName)  throws UniformNotFoundException {
         glUniform1f(this.getUniformLocation(uniformName), val);
     }
 
-    public void uploadVec3(Vector3f val, String uniformName) {
+    public void uploadVec3(Vector3f val, String uniformName) throws UniformNotFoundException {
         glUniform3f(this.getUniformLocation(uniformName), val.x, val.y, val.z);
     }
 
-    private int getUniformLocation(String uniformName) {
+    private int getUniformLocation(String uniformName) throws UniformNotFoundException {
         int location = glGetUniformLocation(this.shaderProgram, uniformName);
 
         if (location == -1)
-            throw new RuntimeException("Uniform name provided " + uniformName + " is not found in program " + this.shaderProgram + "\n");
+            throw new UniformNotFoundException("Uniform name provided " + uniformName + " is not found in program " + this.shaderProgram + "\n");
 
         return location;
     }
+
 
     private int createShader(ShaderInfo info, String source) {
         int type = switch (info.getType()) {

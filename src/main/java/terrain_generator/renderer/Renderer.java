@@ -1,8 +1,10 @@
 package terrain_generator.renderer;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.SimplexNoise;
 import org.joml.Vector3f;
+import terrain_generator.UniformNotFoundException;
 import terrain_generator.utils.AsyncResourceManager;
 import terrain_generator.utils.Camera;
 import terrain_generator.RenderSettings;
@@ -18,6 +20,14 @@ public class Renderer {
     ShaderProgram defaultShader;
     Camera camera;
 
+    // The matrices are 4x4 instead of 3x3 because of needing translations but why?
+    // The rules of linear algebra states that the origin must be fixed and cannot be translated.
+    // But then how can we move objects in 3D space with one matrix. You cant.
+    // If you used a 3x3 matrix you would have to add a translation vector to each vertex of an object.
+    // This get expensive when you could potentially have hundreds of thousands of vertex.
+    // The equation with a 3x3 matrix in the vertex shader (ignoring other matrices) would be modelMatrix * position + translation.
+    // The GPU is perfect at 4x4 matrix * 4D vector calculations so representing the translation in a matrix would be significantly more efficient.
+    // With the 4x4 matrix were basically adding a new column with
     Matrix4f model;
 
 
@@ -50,7 +60,7 @@ public class Renderer {
         this.resourceManager.loadShaderProgram("defaultShader", shaderInfos);
 
 
-        this.camera = new Camera(new Vector3f(0.0f, 0.0f, 2.0f), fov, canvasWidth / canvasHeight, 0.1f, 100.0f);
+        this.camera = new Camera(new Vector3f(0.0f, 0.0f, 2.0f), fov, canvasWidth / canvasHeight, 0.1f, 40.0f);
 
         this.model = new Matrix4f().identity().scale(5);
 
@@ -132,12 +142,17 @@ public class Renderer {
         this.defaultShader.bind();
 
 
-        this.camera.uploadViewMatrix(this.defaultShader, "view");
-        this.camera.uploadProjectionMatrix(this.defaultShader, "proj");
-        this.defaultShader.uploadMatrix4f(this.model, "model");
-        this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
-        this.defaultShader.uploadVec3(lightPos, "lightPos");
-        this.defaultShader.uploadVec3(new Vector3f(1.0f), "lightColour");
+        try {
+            this.camera.uploadViewMatrix(this.defaultShader, "viewMat");
+            this.camera.uploadProjectionMatrix(this.defaultShader, "projMat");
+            this.defaultShader.uploadMatrix4f(this.model, "modelMat");
+
+            this.defaultShader.uploadMatrix3f(new Matrix3f(this.model).normal(), "normalMat");
+            this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
+            this.defaultShader.uploadVec3(lightPos, "lightPos");
+            this.defaultShader.uploadVec3(new Vector3f(1.0f), "lightColour");
+        } catch (UniformNotFoundException ignored) {}
+
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);
 
@@ -221,8 +236,18 @@ public class Renderer {
             Vertex v = this.vertices.get(i);
             v.normal().normalize();
 
-            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()), new Vector3f(v.normal())));
-            this.normalDebugLinesVertices.add(new Vertex(new Vector3f(v.position()).add(v.normal()), new Vector3f(v.normal())));
+            this.normalDebugLinesVertices.add(
+                    new Vertex(
+                            new Vector3f(v.position()),
+                            new Vector3f(v.normal())
+                    )
+            );
+            this.normalDebugLinesVertices.add(
+                    new Vertex(
+                            new Vector3f(v.position()).add(v.normal()),
+                            new Vector3f(v.normal())
+                    )
+            );
 
         }
 

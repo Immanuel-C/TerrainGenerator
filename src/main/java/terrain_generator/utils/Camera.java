@@ -2,6 +2,7 @@ package terrain_generator.utils;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import terrain_generator.UniformNotFoundException;
 import terrain_generator.renderer.ShaderProgram;
 
 public class Camera {
@@ -27,11 +28,11 @@ public class Camera {
         this.view = new Matrix4f().lookAt(this.position, new Vector3f(0, 0, 0), new Vector3f(0, 1, 0));
     }
 
-    public void uploadViewMatrix(ShaderProgram program, String uniformName) {
+    public void uploadViewMatrix(ShaderProgram program, String uniformName)  throws UniformNotFoundException {
         program.uploadMatrix4f(this.view, uniformName);
     }
 
-    public void uploadProjectionMatrix(ShaderProgram program, String uniformName) {
+    public void uploadProjectionMatrix(ShaderProgram program, String uniformName)  throws UniformNotFoundException {
         program.uploadMatrix4f(this.projection, uniformName);
     }
 }
