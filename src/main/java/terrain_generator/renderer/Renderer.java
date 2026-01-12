@@ -14,7 +14,7 @@ import terrain_generator.utils.ResourceType;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.opengl.GL43.*;
+import static org.lwjgl.opengl.GL45.*;
 
 public class Renderer {
     ShaderProgram defaultShader;
@@ -47,9 +47,15 @@ public class Renderer {
     public Renderer(AsyncResourceManager resourceManager, TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
         this.resourceManager = resourceManager;
 
+        glEnable(GL_FRAMEBUFFER_SRGB);
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+
+
+        glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
+        glClearDepth(1.0f);
 
 
         ShaderInfo[] shaderInfos = {
@@ -60,7 +66,7 @@ public class Renderer {
         this.resourceManager.loadShaderProgram("defaultShader", shaderInfos);
 
 
-        this.camera = new Camera(new Vector3f(0.0f, 0.0f, 2.0f), fov, canvasWidth / canvasHeight, 0.1f, 40.0f);
+        this.camera = new Camera(new Vector3f(0.0f, 0.0f, 2.0f), fov, canvasWidth / canvasHeight, 0.1f, 100.0f);
 
         this.model = new Matrix4f().identity().scale(5);
 
@@ -84,7 +90,8 @@ public class Renderer {
         dummyIndices.add(0);
         this.normalDebugLines = new Renderable(this.normalDebugLinesVertices, dummyIndices, 6 * Float.BYTES, attributeDescriptors);
 
-        this.camera.position.y += 10.0f;
+        this.camera.position.y += 5.0f;
+        this.camera.position.z -= 15.0f;
 
 
         this.model.scale(0.01f);
@@ -110,8 +117,8 @@ public class Renderer {
 
 
         final float radius = 15.0f;
-        this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
-        this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
+        //this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
+        //this.camera.position.z = (float) (Math.cos(System.currentTimeMillis() / 1000.0) * radius);
         this.lightPos.x = (float) (Math.sin(System.currentTimeMillis() / 500.0) * radius);
         this.lightPos.z = (float) (Math.cos(System.currentTimeMillis() / 500.0) * radius);
 
@@ -135,7 +142,6 @@ public class Renderer {
 
         this.camera.update();
 
-        glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         this.terrain.bind();
@@ -151,7 +157,8 @@ public class Renderer {
             this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
             this.defaultShader.uploadVec3(lightPos, "lightPos");
             this.defaultShader.uploadVec3(new Vector3f(1.0f), "lightColour");
-        } catch (UniformNotFoundException ignored) {}
+        } catch (UniformNotFoundException e) {
+        }
 
 
         glDrawElements(GL_TRIANGLES, this.indices.size(), GL_UNSIGNED_INT, 0);
@@ -159,7 +166,7 @@ public class Renderer {
         this.normalDebugLines.bind();
         this.defaultShader.bind();
 
-        glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
+        //glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
 
     }
 

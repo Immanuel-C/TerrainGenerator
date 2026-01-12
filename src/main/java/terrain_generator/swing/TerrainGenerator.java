@@ -30,11 +30,12 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
         GLData data = new GLData();
         data.majorVersion = 4;
-        data.minorVersion = 3;
+        data.minorVersion = 5;
         data.doubleBuffer = true;
         data.samples = 4;
         data.swapInterval = 0;
         data.debug = true;
+        data.sRGB = true;
         data.profile = GLData.Profile.CORE;
 
         this.canvas = new TerrainCanvas(data, input, terrainState, renderSettings);
@@ -47,6 +48,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
 
         this.infoPane.addTab("Terrain Data", this.canvasUi);
         this.infoPane.addTab("Render Settings", renderSettingsUi);
+        this.infoPane.addTab("Colour Picker Test", new ColourPicker(Color.WHITE, 5000));
 
         this.add(this.infoPane, BorderLayout.WEST);
         this.add(canvas, BorderLayout.CENTER);

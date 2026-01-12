@@ -1,6 +1,6 @@
 package terrain_generator.renderer;
 
-import static org.lwjgl.opengl.GL43.*;
+import static org.lwjgl.opengl.GL45.*;
 
 public class VertexDescriptorArray {
     int vao;

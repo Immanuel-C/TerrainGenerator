@@ -12,7 +12,7 @@ import java.lang.ref.Reference;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 
-import static org.lwjgl.opengl.GL43.*;
+import static org.lwjgl.opengl.GL45.*;
 
 public class ShaderProgram extends Resource {
     private int shaderProgram;

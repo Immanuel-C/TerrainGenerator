@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="185be0ec-7164-4bf0-a7c0-73cd64b19569" name="Changes" comment="added async resource loading">
+      <change afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/FrameBufferAttachment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/FrameBufferAttachmentType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/Framebuffer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/ColourPicker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/shaders/default.frag" beforeDir="false" afterPath="$PROJECT_DIR$/assets/shaders/default.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TODO.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/TODO.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/IndexBuffer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/IndexBuffer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/Renderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/Renderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/ShaderProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/ShaderProgram.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/VertexBuffer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/VertexBuffer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/VertexDescriptorArray.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/VertexDescriptorArray.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainGenerator.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" show_ignored="true" />
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TerrainGenerator" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="cs-template" />
+        <option value="Interface" />
+        <option value="AnnotationType" />
+        <option value="Record" />
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Immanuel-C&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Immanuel-C/TerrainGenerator.git&quot;,
+    &quot;accountId&quot;: &quot;abce7b89-26ce-41eb-80f2-48f9324efbbd&quot;
+  }
+}</component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\imman\.gradle\wrapper\dists\gradle-9.0.0-bin\d6wjpkvcgsg3oed0qlfss3wgl\gradle-9.0.0" javaHome="C:\Program Files\Java\jdk-24" gradleVersion="9.0.0" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="36tnmiD6zbe0Zk29AQngdaRv14i" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Profiler#1",
+    "Application.Run.executor": "Run",
+    "Gradle.Build TerrainGenerator.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "Gradle.TerrainGenerator [:Main.main()].executor": "Run",
+    "Gradle.TerrainGenerator [:TerrainGenerator.main()].executor": "Run",
+    "Gradle.TerrainGenerator [:Test.main()].executor": "Run",
+    "Gradle.TerrainGenerator [:terrain_generator.Main.main()].executor": "Debug",
+    "Gradle.TerrainGenerator.executor": "Run",
+    "JAR Application.TerrainGenerator-1.0-SNAPSHOT.jar (1).executor": "Run",
+    "JAR Application.TerrainGenerator-1.0-SNAPSHOT.jar.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Shell Script.gradlew.executor": "Run",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/imman/IdeaProjects/TerrainGenerator/assets/texture",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.4610564",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\imman\IdeaProjects\TerrainGenerator\assets\texture" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\imman\IdeaProjects\TerrainGenerator\debug" />
+      <recent name="C:\Users\imman\IdeaProjects\TerrainGenerator\deps" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="ms-17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="terrain_generator.Main" />
+      <module name="TerrainGenerator.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="terrain_generator.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TerrainGenerator" type="GradleRunConfiguration" factoryName="Gradle" nameIsGenerated="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="TerrainGenerator-1.0-SNAPSHOT.jar (1)" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/distributions/TerrainGenerator-1.0-SNAPSHOT/TerrainGenerator-1.0-SNAPSHOT/lib/TerrainGenerator-1.0-SNAPSHOT.jar" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TerrainGenerator-1.0-SNAPSHOT.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/TerrainGenerator-1.0-SNAPSHOT.jar" />
+      <method v="2" />
+    </configuration>
+    <configuration name="gradlew" type="ShConfigurationType" temporary="true">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/gradlew" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/sh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Gradle.TerrainGenerator" />
+      <item itemvalue="JAR Application.TerrainGenerator-1.0-SNAPSHOT.jar" />
+      <item itemvalue="JAR Application.TerrainGenerator-1.0-SNAPSHOT.jar (1)" />
+      <item itemvalue="Shell Script.gradlew" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="JAR Application.TerrainGenerator-1.0-SNAPSHOT.jar (1)" />
+        <item itemvalue="JAR Application.TerrainGenerator-1.0-SNAPSHOT.jar" />
+        <item itemvalue="Shell Script.gradlew" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-cffe25b9f5b3-intellij.indexing.shared.core-IU-253.28294.334" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="185be0ec-7164-4bf0-a7c0-73cd64b19569" name="Changes" comment="" />
+      <created>1765834902225</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1765834902225</updated>
+      <workItem from="1765834910088" duration="11466000" />
+      <workItem from="1765919967208" duration="58000" />
+      <workItem from="1765920036594" duration="256000" />
+      <workItem from="1765920370707" duration="8656000" />
+      <workItem from="1765932590940" duration="3269000" />
+      <workItem from="1765936147610" duration="2805000" />
+      <workItem from="1766004561151" duration="5418000" />
+      <workItem from="1766021820791" duration="2647000" />
+      <workItem from="1766121734254" duration="6782000" />
+      <workItem from="1766167627452" duration="1188000" />
+      <workItem from="1766173373792" duration="3691000" />
+      <workItem from="1766188041237" duration="1218000" />
+      <workItem from="1766251837975" duration="1379000" />
+      <workItem from="1766253264993" duration="3642000" />
+      <workItem from="1766257094030" duration="1455000" />
+      <workItem from="1766343794860" duration="2928000" />
+      <workItem from="1766350681729" duration="1624000" />
+      <workItem from="1766373583196" duration="5282000" />
+      <workItem from="1766426773739" duration="8303000" />
+      <workItem from="1766438172267" duration="913000" />
+      <workItem from="1766445624451" duration="5754000" />
+      <workItem from="1766461765239" duration="4414000" />
+      <workItem from="1766466664891" duration="3513000" />
+      <workItem from="1766519015285" duration="2578000" />
+      <workItem from="1766717262619" duration="3903000" />
+      <workItem from="1766788160890" duration="249000" />
+      <workItem from="1766893147237" duration="7417000" />
+      <workItem from="1766952075198" duration="4793000" />
+      <workItem from="1766990579320" duration="7780000" />
+      <workItem from="1767042040703" duration="1963000" />
+      <workItem from="1767054865765" duration="3039000" />
+      <workItem from="1767238331594" duration="6043000" />
+      <workItem from="1767326853736" duration="2850000" />
+      <workItem from="1767388873807" duration="1672000" />
+      <workItem from="1767404008290" duration="1814000" />
+      <workItem from="1767665904627" duration="105000" />
+      <workItem from="1767834579123" duration="704000" />
+      <workItem from="1767835296077" duration="489000" />
+      <workItem from="1767835797579" duration="6493000" />
+      <workItem from="1767907282542" duration="23176000" />
+      <workItem from="1767994742447" duration="14035000" />
+      <workItem from="1768018171680" duration="7566000" />
+      <workItem from="1768165982086" duration="10000" />
+    </task>
+    <task id="LOCAL-00001" summary="Mostly finished swing things and started shaders.">
+      <option name="closed" value="true" />
+      <created>1765928999340</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1765928999340</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Rendered Triangle">
+      <option name="closed" value="true" />
+      <created>1765938960311</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1765938960311</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Added a camera">
+      <option name="closed" value="true" />
+      <created>1766011562615</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1766011562615</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Back up for LWJGL3-awt impl">
+      <option name="closed" value="true" />
+      <created>1766429342811</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1766429342811</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Back up for windows reinstall">
+      <option name="closed" value="true" />
+      <created>1766788279478</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1766788279478</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Got some terrain rendering with normal data.">
+      <option name="closed" value="true" />
+      <created>1766998400906</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1766998400906</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added Render Settings and modified code.">
+      <option name="closed" value="true" />
+      <created>1767665982729</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1767665982729</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Started ResourceManager">
+      <option name="closed" value="true" />
+      <created>1767844069603</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1767844069603</updated>
+    </task>
+    <task id="LOCAL-00009" summary="added async resource loading">
+      <option name="closed" value="true" />
+      <created>1767933160406</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1767933160406</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.frag" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.vert" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Mostly finished swing things and started shaders." />
+    <MESSAGE value="Rendered Triangle" />
+    <MESSAGE value="Added a camera" />
+    <MESSAGE value="Back up for LWJGL3-awt impl" />
+    <MESSAGE value="Back up for windows reinstall" />
+    <MESSAGE value="Got some terrain rendering with normal data." />
+    <MESSAGE value="added ui elements to modify terrain generation and added visualizing the terrains normals" />
+    <MESSAGE value="Added Render Settings and modified code." />
+    <MESSAGE value="Started ResourceManager" />
+    <MESSAGE value="added async resource loading" />
+    <option name="LAST_COMMIT_MESSAGE" value="added async resource loading" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="com.jogamp.opengl.GLException" package="com.jogamp.opengl" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jrt://$PROJECT_DIR$/../../../../Program Files/Java/jdk-24!/java.base/java/util/concurrent/ThreadPoolExecutor.class</url>
+          <line>335</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="GradleRunConfiguration">
+        <watch expression="this" />
+        <watch expression="((java.util.ArrayList)this.vertices).get(0)" custom="terrain_generator.Renderer,java.util.ArrayList" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/TerrainGenerator$Main.ic" NAME="Main Coverage Results" MODIFIED="1767931756994" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>terrain_generator.*</FILTER>
+    </SUITE>
+  </component>
+</project>

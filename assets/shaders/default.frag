@@ -25,7 +25,7 @@ void main() {
     // So the we must choose the max of either the dot product or 0.
     vec3 diff = max(dot(normal, lightDirection), 0.0) * lightColour;
 
-    float far = 40.0;
+    float far = 100.0;
     float near = 0.1;
 
     // depth = z - near / far - near
