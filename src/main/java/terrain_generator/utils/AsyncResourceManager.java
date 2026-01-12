@@ -109,10 +109,6 @@ public class AsyncResourceManager {
                     for (int i = 0; i < shaderInfos.length; i++) {
                         try {
                             sources[i] = Files.readString(Path.of(shaderInfos[i].getPath()));
-
-                            for (int y = 0; y < 100; y++) {
-                                Files.readAllBytes(Path.of("assets/texture/img.png"));
-                            }
                         } catch (IOException e) {
                             throw new CompletionException(e);
                         }

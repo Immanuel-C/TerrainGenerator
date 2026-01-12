@@ -43,13 +43,14 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         this.infoPane = new JTabbedPane();
         this.infoPane.setPreferredSize(new Dimension(300, 720));
 
-        canvasUi = new CanvasUi(canvas, terrainState);
+        this.canvasUi = new CanvasUi(canvas, terrainState);
         RenderSettingsUi renderSettingsUi = new RenderSettingsUi(renderSettings);
+
+
 
         this.infoPane.addTab("Terrain Data", this.canvasUi);
         this.infoPane.addTab("Render Settings", renderSettingsUi);
-        this.infoPane.addTab("Colour Picker Test", new ColourPicker(Color.WHITE, 5000));
-
+        this.infoPane.addTab("Colour Picker Test", new ColourPicker(Color.white, 5_000));
         this.add(this.infoPane, BorderLayout.WEST);
         this.add(canvas, BorderLayout.CENTER);
 
