@@ -40,5 +40,6 @@ void main() {
     depth = ndcDepth / far; // Convert back to [0.0, 1.0].
 
     vec3 objColour = vec3(0.5) * (diff + ambientStrength);
-    fragColour = vec4(vec3(depth), 1.0);
+    fragColour = vec4(objColour, 1.0);
+    //fragColour = vec4(vec3(depth), 1.0);
 }

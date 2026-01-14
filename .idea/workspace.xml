@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8a3c32f9-a9bc-467d-b8a2-ab75d8811a16" name="Changes" comment="Added UniformNotFoundException messing with how coordinate spaces and matrices work especially the perspective matrix">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="8a3c32f9-a9bc-467d-b8a2-ab75d8811a16" name="Changes" comment="finishing colour picker">
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/texture/img.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/shaders/default.frag" beforeDir="false" afterPath="$PROJECT_DIR$/assets/shaders/default.frag" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/ColourPicker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/ColourPicker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/AsyncResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/AsyncResourceManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,10 +76,11 @@
     "Application.Main.executor": "Run",
     "Gradle.Build TerrainGenerator.executor": "Run",
     "Gradle.Download Sources.executor": "Run",
-    "Gradle.TerrainGenerator [:terrain_generator.Main.main()].executor": "Run",
+    "Gradle.TerrainGenerator [:terrain_generator.Main.main()].executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "project.structure.last.edited": "Modules",
@@ -98,6 +96,7 @@
       </envs>
       <option name="MAIN_CLASS_NAME" value="terrain_generator.Main" />
       <module name="TerrainGenerator.main" />
+      <option name="PROGRAM_PARAMETERS" value="-Dawt.toolkit.name=WLToolkit" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="terrain_generator.*" />
@@ -184,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767985973246</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="finishing colour picker">
+      <option name="closed" value="true" />
+      <created>1768245354553</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1768245354553</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -193,6 +200,18 @@
     <MESSAGE value="Added Lighting" />
     <MESSAGE value="Worked more on AsyncResourceManager" />
     <MESSAGE value="Added UniformNotFoundException messing with how coordinate spaces and matrices work especially the perspective matrix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added UniformNotFoundException messing with how coordinate spaces and matrices work especially the perspective matrix" />
+    <MESSAGE value="finishing colour picker" />
+    <option name="LAST_COMMIT_MESSAGE" value="finishing colour picker" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/terrain_generator/swing/ColourPicker.java</url>
+          <line>267</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

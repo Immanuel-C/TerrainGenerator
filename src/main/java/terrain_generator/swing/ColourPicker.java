@@ -1,5 +1,6 @@
 package terrain_generator.swing;
 
+import org.joml.Matrix2d;
 import org.joml.Vector2d;
 
 import javax.swing.*;
@@ -25,7 +26,12 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
         this.currentColour = initialColour;
 
-        this.colourWheel = new ColourWheel(colourWheelRadius, this.currentColour);
+        this.colourWheel = new ColourWheel(colourWheelRadius, this.currentColour, () -> {
+            this.colourWheel.setCurrentColour(this.currentColour);
+            this.setRgbSpinners();
+            this.currentColourToHex();
+        });
+
         this.add(this.colourWheel);
 
         this.colourInfoPanel = new JPanel();
@@ -137,27 +143,41 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         this.testButton.setBackground(this.currentColour);
     }
 
+    // The Colour Wheel operates in three coordinate systems referred to as "space(s)" in comments.
+    // - The JPanel pixel space is the size of the JPanel min dimension (min(width, height)). The origin is the top left pixel of the JPanel.
+    // - The image pixel or image space is the size of the unscaled image which has a width and height of the diameter of the circle. The origin of this space is the top left pixel.
+    // - The circle space's origin starts at the center of the circle. Any pixel that lies within the radius and center of the circle is a part of the circle. Its basically just the image pixel space with a translated origin.
+    // This class was separated from the colour picker as it's easier for me to deal with certain components at a time and figuring out how to connect them
+    // rather than creating one giant component. With this class anything I change can basically only deal with its context and not with the entire colour picker.
+    // TLDR: I'm breaking the problem down into simpler parts.
     private static class ColourWheel extends JPanel implements MouseListener, MouseMotionListener {
         private final BufferedImage colourWheel;
         private final int radius;
-        // in image space;
+        public Color currentColour;
+        // In JPanel pixel space.
         private Vector2d pickerPosition;
+        private final Vector2d upVector;
 
+        private final Runnable colourChangedListener;
 
         // The higher the radius the higher quality the image
         // but it uses more memory and takes longer to generate.
-        public ColourWheel(int radius, Color initialColour) {
+        public ColourWheel(int radius, Color initialColour, Runnable colourChangedListener) {
+            this.currentColour = initialColour;
             this.radius = radius;
+            // Up is at 0 rad/0 degrees
+            // When creating the image the y-axis is flipped.
+            // Since the origin of the image space is the top left pixel we are currently in
+            // the bottom right pixel is (diameter, diameter). When moving the origin to the center
+            // the bottom right pixel is now (radius, radius) so the top left pixel must now be (-radius, -radius).
+            this.upVector = new Vector2d(0, -1);
 
             int diameter = this.radius * 2;
             this.colourWheel = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
 
-            // Up is a 0 rad
-            Vector2d up = new Vector2d(0.0, -1.0);
-
             for (int x = 0; x < diameter; x++) {
                 for (int y = 0; y < diameter; y++) {
-                    Vector2d point = this.imageSpaceToCircleSpace(new Vector2d(x, y));
+                    Vector2d point = this.imagePixelSpaceToCircleSpace(new Vector2d(x, y));
 
                     if (!this.isPointInsideCircle(point)) {
                         this.colourWheel.setRGB(x, y, new Color(0, 0, 0, 0).getRGB());
@@ -166,11 +186,10 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
                     // Hue is always measured in degrees.
                     // Get the angle between the up dir and the point.
-                    // [0 deg, 360 deg]
-                    float hue = (float) (Math.toDegrees(point.angle(up)) / 360.0f);
-
-                    if (hue < 0)
-                        hue += 360;
+                    // Divide by PI since that is the period of the method (The max angle between the two angle is +/- PI).
+                    // Convert to the range of [-1, 1] to [0, 1] which the HSBtoRGB method expects.
+                    // [0, 1]
+                    float hue = (float)(point.angle(this.upVector) / Math.PI) / 2.0f + 1.0f;
 
 
                     // [0%, 100%] or [0.0, 1.0]
@@ -183,13 +202,15 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
                     float lightness = 1.f;
 
 
-                    int argb = Color.getHSBColor(hue, saturation, lightness).getRGB();
+                    int argb = Color.HSBtoRGB(hue, saturation, lightness);
+
                     this.colourWheel.setRGB(x, y, argb);
                 }
             }
 
             this.addMouseListener(this);
             this.addMouseMotionListener(this);
+            this.colourChangedListener = colourChangedListener;
         }
 
         @Override
@@ -197,26 +218,57 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
             super.paintComponent(g);
             int size = this.getScaledSize();
             g.drawImage(this.colourWheel, 0, 0, size, size, this);
-            if (this.pickerPosition != null)
-                g.drawRect((int) this.pickerPosition.x, (int) this.pickerPosition.y, 1, 1);
+            if (this.pickerPosition != null) {
+                g.drawArc((int) this.pickerPosition.x, (int) this.pickerPosition.y, 5, 5, 0, 360);
+            }
         }
 
-        // This point must be in the image pixel space.
         // The origin of this point must be the center of the circle as well.
         private boolean isPointInsideCircle(Vector2d point) {
             return point.lengthSquared() < Math.pow(this.radius, 2);
         }
 
-        private Vector2d imageSpaceToCircleSpace(Vector2d point) {
+        private Vector2d imagePixelSpaceToCircleSpace(Vector2d point) {
              return point.sub(new Vector2d(this.radius));
         }
 
-        private Vector2d scaledImageSpaceToImageSpace(Vector2d point) {
+        private Vector2d jPanelPixelSpaceToImagePixelSpace(Vector2d point) {
             return point.mul(2.0 * this.radius / this.getScaledSize());
         }
 
         private int getScaledSize() {
             return Math.min(this.getWidth(), this.getHeight());
+        }
+
+        private void updatePickerPosition(Vector2d point) {
+            // Picker position must be in scaled image space. But the isPointerInsideCircle method checks in circle space.
+            // A copy is made to check.
+            Vector2d copy = this.jPanelPixelSpaceToImagePixelSpace(new Vector2d(point));
+            this.imagePixelSpaceToCircleSpace(copy);
+
+            if (this.isPointInsideCircle(copy)) {
+                this.pickerPosition = point;
+                // Repaint to draw the new picker position
+                this.repaint();
+                this.colourChangedListener.run();
+            }
+        }
+
+        // newColor must be in RGB format.
+        private void setCurrentColour(Color newColour) {
+            float[] hsb = Color.RGBtoHSB(newColour.getRed(), newColour.getGreen(), newColour.getBlue(), new float[3]);
+
+            // To get the point back we must do the inverse of this equation.
+            // float hue = (float)(point.angle(up) / Math.PI);
+            double angle = hsb[0] * Math.PI;
+            double angleDeg =  Math.toDegrees(angle);
+            // rotate the direction of the up vector angle radians using a rotation matrix.
+            // This results in the direction of the point from the center of the circle.
+            Matrix2d rotationMatrix = new Matrix2d().rotate(angle);
+            Vector2d direction = new Vector2d(this.upVector).mul(rotationMatrix);
+
+
+
         }
 
         @Override
@@ -226,13 +278,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         @Override
         public void mousePressed(MouseEvent e) {
             Vector2d point = new Vector2d(e.getX(), e.getY());
-            this.scaledImageSpaceToImageSpace(point);
-            Vector2d copy = this.imageSpaceToCircleSpace(new Vector2d(point));
-
-            if (this.isPointInsideCircle(copy)) {
-                this.pickerPosition = point;
-            }
-
+            this.updatePickerPosition(point);
         }
 
         @Override
@@ -254,10 +300,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         @Override
         public void mouseDragged(MouseEvent e) {
             Vector2d point = new Vector2d(e.getX(), e.getY());
-            this.scaledImageSpaceToImageSpace(point);
-            this.imageSpaceToCircleSpace(point);
-
-            System.out.println("Point: " + point + " is in the colour wheel? " + isPointInsideCircle(point));
+            this.updatePickerPosition(point);
         }
 
         @Override
