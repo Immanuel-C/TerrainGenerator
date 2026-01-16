@@ -32,10 +32,11 @@ public class RenderSettingsUi extends JPanel {
             }
         });
 
-        ColourPicker colourPicker = new ColourPicker(this.renderSettings.clearColour, 5_000);
+        ColourPicker colourPicker = new ColourPicker(this.renderSettings.clearColour, 5_000, (newColour) -> this.renderSettings.clearColour = newColour);
 
         this.add(ambientStrengthSpinner);
         this.add(wireFrameCheckBox);
+        this.add(colourPicker);
     }
 
 }

@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 
 public class ColourPicker extends JPanel implements ActionListener, ChangeListener {
+    private final Consumer<Color> colourChangedListener;
     private Color currentColour;
     private JTextField hexCodeLabel;
     private LabeledSpinner[] rgbSpinners;
@@ -24,10 +25,11 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
     private boolean stateChangedByProgram;
 
 
-    public ColourPicker(Color initialColour, int colourWheelRadius) {
+    public ColourPicker(Color initialColour, int colourWheelRadius, Consumer<Color> colourChangedListener) {
         this.setLayout(new GridLayout(2, 1));
 
         this.currentColour = initialColour;
+        this.colourChangedListener = colourChangedListener;
 
         this.colourWheel = new ColourWheel(colourWheelRadius, this.currentColour, (newColour) -> {
             this.stateChangedByProgram = true;
@@ -35,6 +37,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
             this.setRgbSpinners(newColour);
             this.currentColourToHex();
             this.stateChangedByProgram = false;
+            this.colourChangedListener.accept(this.currentColour);
         });
 
         this.add(this.colourWheel);
@@ -74,7 +77,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        this.colourWheel.setMinimumSize(new Dimension(this.getWidth() / 2, this.getHeight() / 2));
+        this.colourWheel.setPreferredSize(new Dimension(this.getWidth() / 2, this.getHeight() / 2));
     }
 
     private void currentColourToHex() {
@@ -140,6 +143,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         this.currentHexCodeToColour();
         this.testButton.setBackground(this.currentColour);
         this.colourWheel.setCurrentColour(this.currentColour);
+        this.colourChangedListener.accept(this.currentColour);
     }
 
     @Override
@@ -150,6 +154,8 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
         if (!this.stateChangedByProgram)
             this.colourWheel.setCurrentColour(this.currentColour);
+
+        this.colourChangedListener.accept(this.currentColour);
     }
 
     // The Colour Wheel operates in three coordinate systems referred to as "space(s)" in comments.

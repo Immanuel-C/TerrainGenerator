@@ -8,9 +8,9 @@ import terrain_generator.UniformNotFoundException;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
-import java.lang.ref.Reference;
-import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.util.Collection;
+import java.util.Set;
 
 import static org.lwjgl.opengl.GL45.*;
 
@@ -24,7 +24,7 @@ public class ShaderProgram extends Resource {
     // storing it in memory would be ridiculous since it's so large. So to keep consistency
     // no Resource that does not need its data stored in memory should not do so.
     public ShaderProgram(ShaderInfo[] infos, String[] sources) {
-        super(infos, ResourceType.ShaderProgram);
+        super(Set.of(infos), ResourceType.ShaderProgram);
         this.createShaderProgram(infos, sources);
     }
 
@@ -56,11 +56,11 @@ public class ShaderProgram extends Resource {
         }
     }
 
-    void bind() {
+    public void bind() {
         glUseProgram(this.shaderProgram);
     }
 
-    static void unBind() {
+    public void unBind() {
         glUseProgram(0);
     }
 

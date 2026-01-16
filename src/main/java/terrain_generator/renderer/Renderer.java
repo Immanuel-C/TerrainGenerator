@@ -14,6 +14,7 @@ import terrain_generator.utils.ResourceType;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.lwjgl.opengl.GL45.*;
 
@@ -44,7 +45,6 @@ public class Renderer {
     RenderSettings renderSettings;
 
     AsyncResourceManager resourceManager;
-    private Color clearColour;
 
     public Renderer(AsyncResourceManager resourceManager, TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
         this.resourceManager = resourceManager;
@@ -105,20 +105,17 @@ public class Renderer {
     public void resizeViewport(int x, int y, int width, int height) {
         glViewport(x, y, width, height);
     }
-    public void setClearColour(Color newColour) {
-        this.clearColour = newColour;
-    }
+
 
     Vector3f lightPos = new Vector3f(0.0f, 10.0f, 0.0f);
 
     public void render() {
-        if (this.resourceManager.isResourceAvailable("defaultShader")) {
-            if (this.defaultShader == null)
-                this.defaultShader = (ShaderProgram) this.resourceManager.getResource("defaultShader").get();
-        } else {
-            return;
+        if (this.defaultShader == null) {
+            Optional<Resource> resource = this.resourceManager.getResource("defaultShader");
+            if (resource.isPresent())
+                this.defaultShader = (ShaderProgram)resource.get();
+            else return;
         }
-
 
         final float radius = 15.0f;
         //this.camera.position.x = (float) (Math.sin(System.currentTimeMillis() / 1000.0) * radius);
@@ -147,7 +144,7 @@ public class Renderer {
         this.camera.update();
 
 
-        glClearColor(this.clearColour.getRed() / 255.0f, this.clearColour.getGreen() / 255.0f, this.clearColour.getBlue() / 255.0f, 1.0f);
+        glClearColor(this.renderSettings.clearColour.getRed() / 255.0f, this.renderSettings.clearColour.getGreen() / 255.0f, this.renderSettings.clearColour.getBlue() / 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         this.terrain.bind();

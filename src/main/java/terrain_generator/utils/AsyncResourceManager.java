@@ -5,10 +5,7 @@ import terrain_generator.renderer.ShaderProgram;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -16,49 +13,38 @@ import java.util.stream.Stream;
 public class AsyncResourceManager {
     private Thread watcherThread;
     private WatchService watcher;
+    private Set<Path> pathsToWatch;
 
     private ConcurrentHashMap<String, Resource> resources;
+    // The set is the resources that depend on the key.
     private ConcurrentHashMap<Resource, Set<Resource>> dependentResources;
+    // The
+    private ConcurrentHashMap<Resource, Set<Resource>> resourceDependencies;
+
 
     private AtomicBoolean running;
     private ExecutorService futureExecutor;
     private Executor glExecutor;
 
-    public AsyncResourceManager(String resourceDirectory, Executor glExecutor) {
+    public AsyncResourceManager(Executor glExecutor) {
         this.glExecutor = glExecutor;
         this.futureExecutor = Executors.newCachedThreadPool();
         this.watcherThread = new Thread(this::watchFiles, "Resource Manager File Watcher Thread");
         this.resources = new ConcurrentHashMap<>();
         this.dependentResources = new ConcurrentHashMap<>();
+        this.resourceDependencies = new ConcurrentHashMap<>();
         this.running = new AtomicBoolean(true);
+
+        this.pathsToWatch = ConcurrentHashMap.newKeySet();
+
         try {
             this.watcher = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Path resourceDirectoryPath = Path.of(resourceDirectory);
 
-        if (!Files.isDirectory(resourceDirectoryPath)) {
-            throw new RuntimeException(resourceDirectoryPath + " is not a directory");
-        }
-
-        // Recursively go into the resource directory find every folder and add a watcher
-        // for each folder.
-        try (Stream<Path> pathStream = Files.walk(resourceDirectoryPath).filter(Files::isDirectory)) {
-            for (Path path: (Iterable<Path>) pathStream::iterator) {
-                path.register(
-                        this.watcher,
-                        StandardWatchEventKinds.ENTRY_MODIFY,
-                        StandardWatchEventKinds.ENTRY_CREATE,
-                        StandardWatchEventKinds.ENTRY_DELETE
-                );
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-//        this.watcherThread.start();
+        this.watcherThread.start();
     }
 
     public void watchFiles() {
@@ -67,11 +53,30 @@ public class AsyncResourceManager {
         while (this.running.get()) {
             try {
                 key = this.watcher.take();
-                key.pollEvents().forEach(event -> {
-                    if (event.kind().name().equals(StandardWatchEventKinds.ENTRY_MODIFY.name())) {
+                Path path = ((Path)key.watchable());
+                key.pollEvents()
+                        .stream()
+                        .filter(e -> e.context() != null) // If the context is null than we cannot do anything with it.
+                        .map(e -> path.resolve((Path)e.context())) // Convert this stream into a Path stream by getting the absolute path.
+                        .filter(this.pathsToWatch::contains) // If we are not watching this file then filter it out.
+                        .map(p -> {
+                            Resource dependentResource = this.resources.get(p.toString());
 
-                    }
-                });
+                            // This should never happen if it does the program should crash and I should investigate.
+                            if (dependentResource == null)
+                                throw new RuntimeException(p + " is not inside the resources HashMap.");
+
+                            return dependentResource;
+                        }) // Get the resource
+                        .filter(this.dependentResources::containsKey) // Check if any resources are dependent on this resource. If there is none then there are resources that depend on this resource.
+                        .forEach(dependentResource -> {
+                            dependentResources.get(dependentResource).forEach(dependentsDependency -> {
+                                dependentsDependency.dependencies.
+                            });
+                        });
+                // Add the key back onto the queue which allows the service to modify it
+                // and us to take it again.
+                key.reset();
             } catch (InterruptedException e) {
                 this.watcherThread.interrupt();
                 break;
@@ -83,14 +88,14 @@ public class AsyncResourceManager {
     public void stopRunning() {
         this.running.set(false);
         // Interrupt the thread since BlockingQueue::take blocks the thread must be unblocked through an interrupt.
-//        this.watcherThread.interrupt();
-//
-//        try {
-//            this.watcherThread.join();
-//            this.watcher.close();
-//        } catch (InterruptedException | IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        this.watcherThread.interrupt();
+
+        try {
+            this.watcherThread.join();
+            this.watcher.close();
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException(e);
+        }
 
         glExecutor.execute(() -> {
             for (Resource resource: this.resources.values()) {
@@ -100,22 +105,57 @@ public class AsyncResourceManager {
         this.futureExecutor.shutdown();
     }
 
+    private CompletableFuture<Pair<ShaderInfo, String>> loadShaderFile(ShaderInfo shaderInfo) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Path shaderPath = Path.of(shaderInfo.getPath());
+                String source = Files.readString(shaderPath);
+                Path parent = shaderPath.getParent();
 
+                if (parent == null)
+                    throw new IOException(shaderPath + " does not have a parent directory cannot watch this file for hot-reloading.");
+                if (!Files.isDirectory(parent))
+                    throw new IOException(shaderPath + " does not have a parent directory cannot watch this file for hot-reloading.");
+
+                // TODO: Modify maps
+
+
+                parent = parent.toAbsolutePath();
+
+                System.out.println("Watching parent: " + parent);
+
+                parent.register(
+                        this.watcher,
+                        StandardWatchEventKinds.ENTRY_MODIFY,
+                        StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_DELETE
+                );
+
+                this.pathsToWatch.add(shaderPath.toAbsolutePath());
+                System.out.println("Added shader resource: " + shaderPath.toAbsolutePath());
+
+                return new Pair<>(shaderInfo, source);
+            } catch (IOException e) {
+                throw new CompletionException(e);
+            }
+        });
+    }
 
     public void loadShaderProgram(String name, ShaderInfo[] shaderInfos) {
+
         CompletableFuture
                 .supplyAsync(() -> { // Load on dedicated Resource IO threads
-                    String[] sources = new String[shaderInfos.length];
+                    Pair<ShaderInfo, String>[] infoSourcePairs = new Pair[shaderInfos.length];
+
                     for (int i = 0; i < shaderInfos.length; i++) {
                         try {
-                            sources[i] = Files.readString(Path.of(shaderInfos[i].getPath()));
-                        } catch (IOException e) {
+                            infoSourcePairs[i] = loadShaderFile(shaderInfos[i]).get();
+                        } catch (InterruptedException | ExecutionException e) {
                             throw new CompletionException(e);
                         }
                     }
 
-
-                    return new Pair<>(shaderInfos, sources);
+                    return infoSourcePairs;
                 }, this.futureExecutor)
                 // Then create the actual OpenGL object inside the Render thread and when the OpenGL context is current.
                 // Then add it to the resources hash map.
@@ -123,12 +163,23 @@ public class AsyncResourceManager {
                     ShaderProgram shaderProgram = new ShaderProgram(infoSourcePair.first(), infoSourcePair.second());
                     this.resources.put(name, shaderProgram);
 
+
                     for (ShaderInfo info: infoSourcePair.first()) {
-                        if (this.dependentResources.containsKey(info)) {
-                            this.dependentResources.get(info).add(shaderProgram);
-                        } else {
-                            this.dependentResources.put(info, new HashSet<>(List.of(shaderProgram)));
-                        }
+                        String absolutePath = Path.of(info.getPath()).toAbsolutePath().toString();
+
+                        this.resources.put(absolutePath, info);
+                        this.dependentResources.computeIfAbsent(info, (shaderInfo) -> {
+                            Set<Resource> dependencies = ConcurrentHashMap.newKeySet();
+                            dependencies.add(shaderProgram);
+                            return dependencies;
+                        });
+
+                        this.dependentResources.computeIfPresent(info, (shaderInfo, dependentResources) -> {
+                            dependentResources.add(shaderProgram);
+                            // Return the modified dependent set since we modify the reference to the dependent set.
+                            // This doesn't really matter but the BiFunction requires a return value.
+                            return dependentResources;
+                        });
                     }
                 }, this.glExecutor)
                 .exceptionally(e -> { e.printStackTrace(); return null; });
@@ -141,11 +192,6 @@ public class AsyncResourceManager {
     public Optional<Resource> getResource(String name) {
         return Optional.ofNullable(this.resources.get(name));
     }
-
-    public boolean isResourceAvailable(String name) {
-        return this.resources.containsKey(name);
-    }
-
 
     static private ResourceType resourceType(Path path) {
         String fileName = String.valueOf(path.getFileName());

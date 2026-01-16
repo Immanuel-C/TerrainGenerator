@@ -46,7 +46,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
         this.running = new AtomicBoolean(true);
         this.deltaTime = new DeltaTime();
         this.glTasks = new ConcurrentLinkedQueue<>();
-        this.resourceManager = new AsyncResourceManager("assets/", this);
+        this.resourceManager = new AsyncResourceManager(this);
         this.input = input;
         this.fps = new AtomicReference<>(0.0);
 

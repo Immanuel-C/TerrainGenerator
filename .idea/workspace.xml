@@ -6,12 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="8a3c32f9-a9bc-467d-b8a2-ab75d8811a16" name="Changes" comment="finishing colour picker">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/RenderSettings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/RenderSettings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/FrameBufferAttachmentType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/FrameBufferAttachmentType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/shaders/default.vert" beforeDir="false" afterPath="$PROJECT_DIR$/assets/shaders/default.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/Renderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/Renderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/ShaderInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/ShaderInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/ShaderProgram.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/renderer/ShaderProgram.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/ColourPicker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/ColourPicker.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/RenderSettingsUi.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/RenderSettingsUi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainCanvas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/swing/TerrainCanvas.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/AsyncResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/AsyncResourceManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/Resource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/Resource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,8 +47,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Class" />
         <option value="Exception" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -58,12 +61,12 @@
     &quot;assignee&quot;: &quot;Immanuel-C&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Immanuel-C/TerrainGenerator.git",
-    "accountId": "abce7b89-26ce-41eb-80f2-48f9324efbbd"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Immanuel-C/TerrainGenerator.git&quot;,
+    &quot;accountId&quot;: &quot;abce7b89-26ce-41eb-80f2-48f9324efbbd&quot;
   }
-}]]></component>
+}</component>
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14" javaHome="$USER_HOME$/.jdks/jbr-21.0.9" gradleVersion="8.14" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -74,23 +77,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build TerrainGenerator.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Download Sources.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.TerrainGenerator [:terrain_generator.Main.main()].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Gradle.Build TerrainGenerator.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "Gradle.TerrainGenerator [:terrain_generator.Main.main()].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <envs>
