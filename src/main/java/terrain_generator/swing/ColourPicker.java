@@ -8,7 +8,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 
 public class ColourPicker extends JPanel implements ActionListener, ChangeListener {
     private Color currentColour;
@@ -19,6 +21,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
     private JPanel colourInfoPanel;
     private JPanel rgbSpinnersPanel;
+    private boolean stateChangedByProgram;
 
 
     public ColourPicker(Color initialColour, int colourWheelRadius) {
@@ -26,10 +29,12 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
         this.currentColour = initialColour;
 
-        this.colourWheel = new ColourWheel(colourWheelRadius, this.currentColour, () -> {
-            this.colourWheel.setCurrentColour(this.currentColour);
-            this.setRgbSpinners();
+        this.colourWheel = new ColourWheel(colourWheelRadius, this.currentColour, (newColour) -> {
+            this.stateChangedByProgram = true;
+            this.currentColour = newColour;
+            this.setRgbSpinners(newColour);
             this.currentColourToHex();
+            this.stateChangedByProgram = false;
         });
 
         this.add(this.colourWheel);
@@ -104,13 +109,13 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
         this.currentColour = newColour;
 
-        this.setRgbSpinners();
+        this.setRgbSpinners(newColour);
     }
 
-    private void setRgbSpinners() {
-        this.rgbSpinners[0].getSpinner().setValue(this.currentColour.getRed());
-        this.rgbSpinners[1].getSpinner().setValue(this.currentColour.getGreen());
-        this.rgbSpinners[2].getSpinner().setValue(this.currentColour.getBlue());
+    private void setRgbSpinners(Color newColour) {
+        this.rgbSpinners[0].getSpinner().setValue(newColour.getRed());
+        this.rgbSpinners[1].getSpinner().setValue(newColour.getGreen());
+        this.rgbSpinners[2].getSpinner().setValue(newColour.getBlue());
     }
 
     private void setCurrentColour() {
@@ -134,6 +139,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
     public void actionPerformed(ActionEvent e) {
         this.currentHexCodeToColour();
         this.testButton.setBackground(this.currentColour);
+        this.colourWheel.setCurrentColour(this.currentColour);
     }
 
     @Override
@@ -141,6 +147,9 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         this.setCurrentColour();
         this.currentColourToHex();
         this.testButton.setBackground(this.currentColour);
+
+        if (!this.stateChangedByProgram)
+            this.colourWheel.setCurrentColour(this.currentColour);
     }
 
     // The Colour Wheel operates in three coordinate systems referred to as "space(s)" in comments.
@@ -158,11 +167,11 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         private Vector2d pickerPosition;
         private final Vector2d upVector;
 
-        private final Runnable colourChangedListener;
+        private final Consumer<Color> colourChangedListener;
 
         // The higher the radius the higher quality the image
         // but it uses more memory and takes longer to generate.
-        public ColourWheel(int radius, Color initialColour, Runnable colourChangedListener) {
+        public ColourWheel(int radius, Color initialColour, Consumer<Color> colourChangedListener) {
             this.currentColour = initialColour;
             this.radius = radius;
             // Up is at 0 rad/0 degrees
@@ -189,7 +198,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
                     // Divide by PI since that is the period of the method (The max angle between the two angle is +/- PI).
                     // Convert to the range of [-1, 1] to [0, 1] which the HSBtoRGB method expects.
                     // [0, 1]
-                    float hue = (float)(point.angle(this.upVector) / Math.PI) / 2.0f + 1.0f;
+                    float hue = (float)((point.angle(this.upVector) / Math.PI) + 1.0f) / 2.0f;
 
 
                     // [0%, 100%] or [0.0, 1.0]
@@ -208,6 +217,7 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
                 }
             }
 
+
             this.addMouseListener(this);
             this.addMouseMotionListener(this);
             this.colourChangedListener = colourChangedListener;
@@ -218,9 +228,28 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
             super.paintComponent(g);
             int size = this.getScaledSize();
             g.drawImage(this.colourWheel, 0, 0, size, size, this);
-            if (this.pickerPosition != null) {
-                g.drawArc((int) this.pickerPosition.x, (int) this.pickerPosition.y, 5, 5, 0, 360);
+
+            if (this.pickerPosition == null) {
+                this.pickerPosition = new Vector2d();
+                this.setCurrentColour(this.currentColour);
             }
+
+            Vector2d arcSize = new Vector2d(10, 10);
+            Arc2D pickerCircle = new Arc2D.Double(
+                    this.pickerPosition.x - arcSize.x / 2.0,
+                    this.pickerPosition.y - arcSize.y / 2.0,
+                    arcSize.x,
+                    arcSize.y,
+                    0,
+                    360,
+                    Arc2D.OPEN
+            );
+
+            Graphics2D g2d = (Graphics2D)g;
+            g2d.setColor(this.currentColour);
+            g2d.fill(pickerCircle);
+            g2d.setColor(Color.BLACK);
+            g2d.draw(pickerCircle);
         }
 
         // The origin of this point must be the center of the circle as well.
@@ -243,14 +272,15 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
         private void updatePickerPosition(Vector2d point) {
             // Picker position must be in scaled image space. But the isPointerInsideCircle method checks in circle space.
             // A copy is made to check.
-            Vector2d copy = this.jPanelPixelSpaceToImagePixelSpace(new Vector2d(point));
-            this.imagePixelSpaceToCircleSpace(copy);
+            Vector2d copy1 = this.jPanelPixelSpaceToImagePixelSpace(new Vector2d(point));
+            Vector2d copy2 = this.imagePixelSpaceToCircleSpace(new Vector2d(copy1));
 
-            if (this.isPointInsideCircle(copy)) {
+            if (this.isPointInsideCircle(copy2)) {
                 this.pickerPosition = point;
                 // Repaint to draw the new picker position
                 this.repaint();
-                this.colourChangedListener.run();
+                this.currentColour = new Color(this.colourWheel.getRGB((int) copy1.x, (int) copy1.y));
+                this.colourChangedListener.accept(this.currentColour);
             }
         }
 
@@ -260,13 +290,21 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
             // To get the point back we must do the inverse of this equation.
             // float hue = (float)(point.angle(up) / Math.PI);
-            double angle = hsb[0] * Math.PI;
+            double angle = -(2 * hsb[0] - 1) * Math.PI;
             double angleDeg =  Math.toDegrees(angle);
+            double magnitude = hsb[1] * this.radius;
             // rotate the direction of the up vector angle radians using a rotation matrix.
             // This results in the direction of the point from the center of the circle.
-            Matrix2d rotationMatrix = new Matrix2d().rotate(angle);
-            Vector2d direction = new Vector2d(this.upVector).mul(rotationMatrix);
+            Matrix2d transformationMatrix = new Matrix2d()
+                    .scale(magnitude)
+                    .rotate(angle);
+            Vector2d positionImageSpace = new Vector2d(this.upVector).mul(transformationMatrix);
+            positionImageSpace.add(new Vector2d(this.radius));
 
+            this.currentColour = new Color(this.colourWheel.getRGB((int) positionImageSpace.x, (int) positionImageSpace.y));
+
+            this.pickerPosition.set(positionImageSpace.mul(((double) this.getScaledSize() / (this.radius * 2))));
+            this.repaint();
 
 
         }

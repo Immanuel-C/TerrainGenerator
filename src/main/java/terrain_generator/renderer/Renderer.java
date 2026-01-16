@@ -12,6 +12,7 @@ import terrain_generator.TerrainState;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL45.*;
@@ -43,6 +44,7 @@ public class Renderer {
     RenderSettings renderSettings;
 
     AsyncResourceManager resourceManager;
+    private Color clearColour;
 
     public Renderer(AsyncResourceManager resourceManager, TerrainState terrainState, RenderSettings renderSettings, float fov, float canvasWidth, float canvasHeight) {
         this.resourceManager = resourceManager;
@@ -54,7 +56,6 @@ public class Renderer {
         glCullFace(GL_BACK);
 
 
-        glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
         glClearDepth(1.0f);
 
 
@@ -104,6 +105,9 @@ public class Renderer {
     public void resizeViewport(int x, int y, int width, int height) {
         glViewport(x, y, width, height);
     }
+    public void setClearColour(Color newColour) {
+        this.clearColour = newColour;
+    }
 
     Vector3f lightPos = new Vector3f(0.0f, 10.0f, 0.0f);
 
@@ -142,6 +146,8 @@ public class Renderer {
 
         this.camera.update();
 
+
+        glClearColor(this.clearColour.getRed() / 255.0f, this.clearColour.getGreen() / 255.0f, this.clearColour.getBlue() / 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         this.terrain.bind();
