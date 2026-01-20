@@ -4,12 +4,10 @@ import terrain_generator.renderer.ShaderInfo;
 import terrain_generator.renderer.ShaderProgram;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class AsyncResourceManager {
     private Thread watcherThread;
@@ -229,7 +227,7 @@ public class AsyncResourceManager {
         return Optional.ofNullable(this.resources.get(name));
     }
 
-    public static String getResourceFolderPath(String name) {
+    public static String getResourcePath(String name) {
         String path = AsyncResourceManager.class
                 .getClassLoader()
                 .getResource(name)

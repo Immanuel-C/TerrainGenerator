@@ -65,8 +65,8 @@ public class Renderer {
         this.resourceManager.loadShaderProgram(
             "defaultShader",
             List.of(
-                new ShaderInfo(AsyncResourceManager.getResourceFolderPath("shaders/default.vert"), ResourceType.Shader.Type.Vertex),
-                new ShaderInfo(AsyncResourceManager.getResourceFolderPath("shaders/default.frag"), ResourceType.Shader.Type.Fragment)
+                new ShaderInfo(AsyncResourceManager.getResourcePath("shaders/default.vert"), ResourceType.Shader.Type.Vertex),
+                new ShaderInfo(AsyncResourceManager.getResourcePath("shaders/default.frag"), ResourceType.Shader.Type.Fragment)
             )
         );
 
