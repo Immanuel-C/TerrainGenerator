@@ -12,8 +12,8 @@ import terrain_generator.TerrainState;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL45.*;
@@ -59,10 +59,10 @@ public class Renderer {
         glClearDepth(1.0f);
 
 
-        ShaderInfo[] shaderInfos = {
-                new ShaderInfo("assets/shaders/default.vert", ResourceType.VertexShader),
-                new ShaderInfo("assets/shaders/default.frag", ResourceType.FragmentShader),
-        };
+        List<ShaderInfo> shaderInfos = List.of(
+                new ShaderInfo("assets/shaders/default.vert", ResourceType.Shader.Type.Vertex),
+                new ShaderInfo("assets/shaders/default.frag", ResourceType.Shader.Type.Fragment)
+        );
 
         this.resourceManager.loadShaderProgram("defaultShader", shaderInfos);
 

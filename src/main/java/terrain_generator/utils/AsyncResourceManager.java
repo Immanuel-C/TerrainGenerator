@@ -8,7 +8,6 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 public class AsyncResourceManager {
     private Thread watcherThread;
@@ -18,17 +17,17 @@ public class AsyncResourceManager {
     private ConcurrentHashMap<String, Resource> resources;
     // The set is the resources that depend on the key.
     private ConcurrentHashMap<Resource, Set<Resource>> dependentResources;
-    // The
     private ConcurrentHashMap<Resource, Set<Resource>> resourceDependencies;
 
 
+
     private AtomicBoolean running;
-    private ExecutorService futureExecutor;
+    private ExecutorService ioExecutor;
     private Executor glExecutor;
 
     public AsyncResourceManager(Executor glExecutor) {
         this.glExecutor = glExecutor;
-        this.futureExecutor = Executors.newCachedThreadPool();
+        this.ioExecutor = Executors.newCachedThreadPool();
         this.watcherThread = new Thread(this::watchFiles, "Resource Manager File Watcher Thread");
         this.resources = new ConcurrentHashMap<>();
         this.dependentResources = new ConcurrentHashMap<>();
@@ -102,10 +101,10 @@ public class AsyncResourceManager {
                 resource.destroy();
             }
         });
-        this.futureExecutor.shutdown();
+        this.ioExecutor.shutdown();
     }
 
-    private CompletableFuture<Pair<ShaderInfo, String>> loadShaderFile(ShaderInfo shaderInfo) {
+    private CompletableFuture<ShaderInfo> loadShaderFile(ShaderInfo shaderInfo) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Path shaderPath = Path.of(shaderInfo.getPath());
@@ -134,37 +133,41 @@ public class AsyncResourceManager {
                 this.pathsToWatch.add(shaderPath.toAbsolutePath());
                 System.out.println("Added shader resource: " + shaderPath.toAbsolutePath());
 
-                return new Pair<>(shaderInfo, source);
+                shaderInfo.setSource(source);
+
+                return shaderInfo;
             } catch (IOException e) {
                 throw new CompletionException(e);
             }
         });
     }
 
-    public void loadShaderProgram(String name, ShaderInfo[] shaderInfos) {
-
+    public void loadShaderProgram(String name, Collection<ShaderInfo> shaderInfos) {
         CompletableFuture
                 .supplyAsync(() -> { // Load on dedicated Resource IO threads
-                    Pair<ShaderInfo, String>[] infoSourcePairs = new Pair[shaderInfos.length];
-
-                    for (int i = 0; i < shaderInfos.length; i++) {
+                    for (ShaderInfo shaderInfo: shaderInfos) {
                         try {
-                            infoSourcePairs[i] = loadShaderFile(shaderInfos[i]).get();
+                            /*
+                             .get waits for the IO executor to finish executing the future.
+                             loadShaderFile may also be called from the watcher thread so it must also run
+                             asynchronously from when it was called.
+                            */
+                            loadShaderFile(shaderInfo).get();
                         } catch (InterruptedException | ExecutionException e) {
                             throw new CompletionException(e);
                         }
                     }
 
-                    return infoSourcePairs;
-                }, this.futureExecutor)
+                    return shaderInfos;
+                }, this.ioExecutor)
                 // Then create the actual OpenGL object inside the Render thread and when the OpenGL context is current.
                 // Then add it to the resources hash map.
-                .thenAcceptAsync(infoSourcePair -> {
-                    ShaderProgram shaderProgram = new ShaderProgram(infoSourcePair.first(), infoSourcePair.second());
+                .thenAcceptAsync(shaderInfosWithSource -> {
+                    ShaderProgram shaderProgram = new ShaderProgram(shaderInfosWithSource);
                     this.resources.put(name, shaderProgram);
 
 
-                    for (ShaderInfo info: infoSourcePair.first()) {
+                    for (ShaderInfo info: shaderInfosWithSource) {
                         String absolutePath = Path.of(info.getPath()).toAbsolutePath().toString();
 
                         this.resources.put(absolutePath, info);
@@ -191,32 +194,6 @@ public class AsyncResourceManager {
     // check if the return value is invalid.
     public Optional<Resource> getResource(String name) {
         return Optional.ofNullable(this.resources.get(name));
-    }
-
-    static private ResourceType resourceType(Path path) {
-        String fileName = String.valueOf(path.getFileName());
-        int index = fileName.lastIndexOf('.');
-
-        // No file extension
-        if (index == -1)
-            return ResourceType.Unknown;
-
-        String fileExtension = fileName.substring(index);
-
-        switch (fileExtension) {
-            case ".vert" -> {
-                return ResourceType.VertexShader;
-            }
-            case ".frag" -> {
-                return ResourceType.FragmentShader;
-            }
-            case ".comp" -> {
-                return ResourceType.ComputeShader;
-            }
-            default -> {
-                return ResourceType.Unknown;
-            }
-        }
     }
 
 }

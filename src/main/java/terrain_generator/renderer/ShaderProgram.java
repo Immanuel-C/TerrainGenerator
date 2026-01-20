@@ -4,13 +4,15 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL46;
 import terrain_generator.UniformNotFoundException;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.lwjgl.opengl.GL45.*;
 
@@ -19,41 +21,53 @@ public class ShaderProgram extends Resource {
 
     // The source code of each shader isn't stored in the ShaderInfo class because
     // Java would never free the sources since there is something referencing the
-    // source. Since a Resources data can be large storing it in memory would be inefficient.
+    // source. Since a Resources data can be large, storing it in memory would be inefficient.
     // This isn't really a problem with Shaders since it's just text but if it were a texture
-    // storing it in memory would be ridiculous since it's so large. So to keep consistency
+    // storing it in memory would be ridiculous since it could be very large. So to keep consistency
     // no Resource that does not need its data stored in memory should not do so.
-    public ShaderProgram(ShaderInfo[] infos, String[] sources) {
-        super(Set.of(infos), ResourceType.ShaderProgram);
-        this.createShaderProgram(infos, sources);
+    public ShaderProgram(Collection<ShaderInfo> shaderInfos) {
+        super(new ResourceType.ShaderProgram());
+        this.create(shaderInfos);
     }
 
-    // This method allows hot reloading to work.
-    public void createShaderProgram(ShaderInfo[] infos, String[] sources) {
-        if (infos.length != sources.length)
-            throw new RuntimeException("Shader program sources length != infos length.");
+    @Override
+    public void recreate(Collection<Resource> dependencies) {
+        // Destroy the original shader program. This is fine to do since this method will never be called async but will always be
+        // called on the render thread meaning that it will never be destroyed will it is being used by the GPU's driver.
+        this.destroy();
+        this.create(dependencies
+                .stream()
+                .filter(dependency -> dependency.getType() == ResourceType.VertexShader)
+                .map(dependency -> (ShaderInfo)dependency)
+                .collect(Collectors.toList())
+        );
+    }
 
+    private void create(Collection<ShaderInfo> shaderInfos) {
         this.shaderProgram = glCreateProgram();
 
-        int[] shaders = new int[sources.length];
-
-        for (int i = 0; i < sources.length; i++) {
-            shaders[i] = this.createShader(infos[i], sources[i]);
-            glAttachShader(this.shaderProgram, shaders[i]);
-        }
+        ArrayList<Integer> shaders = new ArrayList<>(shaderInfos.size());
+        shaderInfos
+                .stream()
+                .distinct()
+                .map(this::createShader)
+                .forEach(shader -> {
+                    shaders.add(shader);
+                    glAttachShader(this.shaderProgram, shader);
+                });
 
         glLinkProgram(this.shaderProgram);
 
         int success = glGetProgrami(this.shaderProgram, GL_LINK_STATUS);
 
+        // C does not have booleans int's are used as booleans instead. 0 == false, n != 1 is true.
+        // This is useful with pointer as you could do if (!p) to check if the pointer is null.
         if (success == 0) {
             String shaderProgramLog = glGetProgramInfoLog(this.shaderProgram);
             throw new RuntimeException("Shader program failed to compile:\n\n" + shaderProgramLog);
         }
 
-        for (int i = 0; i < sources.length; i++) {
-            glDeleteShader(shaders[i]);
-        }
+        shaders.forEach(GL46::glDeleteShader);
     }
 
     public void bind() {
@@ -109,16 +123,22 @@ public class ShaderProgram extends Resource {
     }
 
 
-    private int createShader(ShaderInfo info, String source) {
-        int type = switch (info.getType()) {
-            case ComputeShader -> GL_COMPUTE_SHADER;
-            case VertexShader -> GL_VERTEX_SHADER;
-            case FragmentShader -> GL_FRAGMENT_SHADER;
-            default -> throw new RuntimeException("Invalid Shader Type: " + info.getType());
+    private int createShader(ShaderInfo shaderInfo) {
+        int type = switch (shaderInfo.getType()) {
+            case ResourceType.Shader shaderType ->
+                switch (shaderType.type()) {
+                    case Compute -> GL_COMPUTE_SHADER;
+                    case Vertex -> GL_VERTEX_SHADER;
+                    case Fragment -> GL_FRAGMENT_SHADER;
+                };
+            default -> throw new RuntimeException("Invalid Shader Type: " + shaderInfo.getType());
         };
 
         int shader = glCreateShader(type);
 
+        String source = shaderInfo
+                .getSource()
+                .orElseThrow(() -> new IllegalStateException("A shader source must be present when creating a shader"));
 
         glShaderSource(shader, source);
         glCompileShader(shader);
@@ -127,9 +147,11 @@ public class ShaderProgram extends Resource {
         
         if (success == 0) {
             String shaderLog = glGetShaderInfoLog(shader);
-            throw new RuntimeException(info.getPath() + " failed to compile:\n\n" + shaderLog);
+            throw new RuntimeException(shaderInfo.getPath() + " failed to compile:\n\n" + shaderLog);
         }
 
         return shader;
     }
+
+    public boolean
 }
