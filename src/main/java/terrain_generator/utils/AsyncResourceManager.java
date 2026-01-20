@@ -4,6 +4,7 @@ import terrain_generator.renderer.ShaderInfo;
 import terrain_generator.renderer.ShaderProgram;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -226,6 +227,19 @@ public class AsyncResourceManager {
     // check if the return value is invalid.
     public Optional<Resource> getResource(String name) {
         return Optional.ofNullable(this.resources.get(name));
+    }
+
+    public static String getResourceFolderPath(String name) {
+        String path = AsyncResourceManager.class
+                .getClassLoader()
+                .getResource(name)
+                .getPath();
+
+
+        if (path == null)
+            throw new RuntimeException("Resource folder cannot be located.");
+
+        return path;
     }
 
 }

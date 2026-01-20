@@ -59,12 +59,16 @@ public class Renderer {
         glClearDepth(1.0f);
 
 
-        List<ShaderInfo> shaderInfos = List.of(
-                new ShaderInfo("assets/shaders/default.vert", ResourceType.Shader.Type.Vertex),
-                new ShaderInfo("assets/shaders/default.frag", ResourceType.Shader.Type.Fragment)
+        // The resource folder is not the resource folder inside the src folder hierarchy but it's in the generated build
+        // folder that gradle generates. This is done so the resources are bundled with the .jar file when
+        // the project is fully exported. For hot reloading modify the build resources to see changes take effect.
+        this.resourceManager.loadShaderProgram(
+            "defaultShader",
+            List.of(
+                new ShaderInfo(AsyncResourceManager.getResourceFolderPath("shaders/default.vert"), ResourceType.Shader.Type.Vertex),
+                new ShaderInfo(AsyncResourceManager.getResourceFolderPath("shaders/default.frag"), ResourceType.Shader.Type.Fragment)
+            )
         );
-
-        this.resourceManager.loadShaderProgram("defaultShader", shaderInfos);
 
 
         this.camera = new Camera(new Vector3f(0.0f, 0.0f, 2.0f), fov, canvasWidth / canvasHeight, 0.1f, 100.0f);
@@ -169,7 +173,8 @@ public class Renderer {
         this.normalDebugLines.bind();
         this.defaultShader.bind();
 
-        //glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
+        if (this.renderSettings.renderNormalDirections)
+            glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
 
     }
 
@@ -242,8 +247,7 @@ public class Renderer {
 
         }
 
-        for (int i = 0; i < this.vertices.size(); i++) {
-            Vertex v = this.vertices.get(i);
+        for (Vertex v : this.vertices) {
             v.normal().normalize();
 
             this.normalDebugLinesVertices.add(

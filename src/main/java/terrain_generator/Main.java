@@ -2,23 +2,8 @@ package terrain_generator;
 
 import terrain_generator.swing.TerrainGenerator;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Scanner;
-import java.util.stream.Stream;
-
 public class Main {
     public static void main(String[] args) {
-        try (Stream<Path> pathStream = Files.walk(Path.of("assets")).filter(Files::isRegularFile)) {
-            pathStream.forEach(p -> {
-                System.out.println(p.getFileName());
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Sacramento State University coming in clutch https://athena.ecs.csus.edu/~gordonvs/RenderDocJava.html.
         // Renderdoc is an application used to debug Graphics API's like OpenGL.
         // Renderdoc has trouble seeing this as an OpenGL application since it's embedded inside

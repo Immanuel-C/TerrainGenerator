@@ -16,27 +16,29 @@ public class RenderSettingsUi extends JPanel {
 
         LabeledSpinner ambientStrengthSpinner = new LabeledSpinner("Ambient Lighting Strength", new SpinnerNumberModel((double)this.renderSettings.ambientStrength, 0.1, 1.0, 0.1));
 
-        ambientStrengthSpinner.getSpinner().addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                renderSettings.ambientStrength = ((Double)ambientStrengthSpinner.getSpinner().getValue()).floatValue();
-            }
+        ambientStrengthSpinner.getSpinner().addChangeListener((ignored) -> {
+            renderSettings.ambientStrength = ((Double)ambientStrengthSpinner.getSpinner().getValue()).floatValue();
         });
 
         JCheckBox wireFrameCheckBox = new JCheckBox("Enable Wire Frame");
 
-        wireFrameCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                renderSettings.wireFrame = wireFrameCheckBox.isSelected();
-            }
+        wireFrameCheckBox.addActionListener((ignored) -> {
+            renderSettings.wireFrame = wireFrameCheckBox.isSelected();
+        });
+
+        JCheckBox renderNormalDirections = new JCheckBox("Render Normal Directions");
+
+        renderNormalDirections.addActionListener((ignored) -> {
+            renderSettings.renderNormalDirections = renderNormalDirections.isSelected();
         });
 
         ColourPicker colourPicker = new ColourPicker(this.renderSettings.clearColour, 5_000, (newColour) -> this.renderSettings.clearColour = newColour);
 
         this.add(ambientStrengthSpinner);
         this.add(wireFrameCheckBox);
+        this.add(renderNormalDirections);
         this.add(colourPicker);
+
     }
 
 }
