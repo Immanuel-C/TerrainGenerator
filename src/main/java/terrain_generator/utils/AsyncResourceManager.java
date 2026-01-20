@@ -19,8 +19,6 @@ public class AsyncResourceManager {
     private ConcurrentHashMap<Resource, Set<Resource>> dependentResources;
     private ConcurrentHashMap<Resource, Set<Resource>> resourceDependencies;
 
-
-
     private AtomicBoolean running;
     private ExecutorService ioExecutor;
     private Executor glExecutor;
@@ -68,10 +66,13 @@ public class AsyncResourceManager {
                             return dependentResource;
                         }) // Get the resource
                         .filter(this.dependentResources::containsKey) // Check if any resources are dependent on this resource. If there is none then there are resources that depend on this resource.
-                        .forEach(dependentResource -> {
-                            dependentResources.get(dependentResource).forEach(dependentsDependency -> {
-                                dependentsDependency.dependencies.
-                            });
+                        .map(this.dependentResources::get)
+                        .flatMap(Set::stream)
+                        .forEach(resource -> {
+                            Set<Resource> dependencies = this.resourceDependencies.get(resource);
+                            ArrayList<Resource> dependencyList = new ArrayList<>(dependencies);
+
+                            dependencies.
                         });
                 // Add the key back onto the queue which allows the service to modify it
                 // and us to take it again.
@@ -142,6 +143,8 @@ public class AsyncResourceManager {
         });
     }
 
+    // shaderInfos should not be modified after calling this method doing so could cause
+    // undefined behavior.
     public void loadShaderProgram(String name, Collection<ShaderInfo> shaderInfos) {
         CompletableFuture
                 .supplyAsync(() -> { // Load on dedicated Resource IO threads

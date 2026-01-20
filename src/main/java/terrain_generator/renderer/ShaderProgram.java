@@ -37,7 +37,7 @@ public class ShaderProgram extends Resource {
         this.destroy();
         this.create(dependencies
                 .stream()
-                .filter(dependency -> dependency.getType() == ResourceType.VertexShader)
+                .filter(dependency -> dependency.getType().getClass() == ResourceType.Shader.class)
                 .map(dependency -> (ShaderInfo)dependency)
                 .collect(Collectors.toList())
         );
@@ -60,8 +60,8 @@ public class ShaderProgram extends Resource {
 
         int success = glGetProgrami(this.shaderProgram, GL_LINK_STATUS);
 
-        // C does not have booleans int's are used as booleans instead. 0 == false, n != 1 is true.
-        // This is useful with pointer as you could do if (!p) to check if the pointer is null.
+        // C does not have booleans int's are used as booleans instead. 0 == false, i != 0 is true.
+        // This is useful with pointers as you could do if (!p) {...} to check if the pointer is null.
         if (success == 0) {
             String shaderProgramLog = glGetProgramInfoLog(this.shaderProgram);
             throw new RuntimeException("Shader program failed to compile:\n\n" + shaderProgramLog);
@@ -153,5 +153,4 @@ public class ShaderProgram extends Resource {
         return shader;
     }
 
-    public boolean
 }
