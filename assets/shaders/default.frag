@@ -12,8 +12,6 @@ in vec3 inFragPos;
 layout(location = 2)
 in vec4 newPos;
 
-
-
 uniform float ambientStrength;
 uniform vec3 lightPos, lightColour;
 

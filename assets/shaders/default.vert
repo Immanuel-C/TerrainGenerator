@@ -24,8 +24,7 @@ void main() {
     // The plane must also be perpendicular
     outNormal = normalMat * aNormal;
     // Lighting calculations are done in world space.
-
     outFragPos = vec3(modelMat * vec4(aPos, 1.0));
     newPos = viewMat * modelMat * vec4(aPos, 1.0);
-    gl_Position = projMat * newPos;
+    gl_Position = projMat * viewMat * modelMat * vec4(aPos, 1.0);
 }

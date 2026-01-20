@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL46;
 import terrain_generator.UniformNotFoundException;
+import terrain_generator.UnimplementedException;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
@@ -67,6 +68,8 @@ public class ShaderProgram extends Resource {
             throw new RuntimeException("Shader program failed to compile:\n\n" + shaderProgramLog);
         }
 
+        // Now that the source code is compiled by the GPU's driver we can delete the actual
+        // shaders since the machine code is stored inside the shader program.
         shaders.forEach(GL46::glDeleteShader);
     }
 
@@ -124,17 +127,9 @@ public class ShaderProgram extends Resource {
 
 
     private int createShader(ShaderInfo shaderInfo) {
-        int type = switch (shaderInfo.getType()) {
-            case ResourceType.Shader shaderType ->
-                switch (shaderType.type()) {
-                    case Compute -> GL_COMPUTE_SHADER;
-                    case Vertex -> GL_VERTEX_SHADER;
-                    case Fragment -> GL_FRAGMENT_SHADER;
-                };
-            default -> throw new RuntimeException("Invalid Shader Type: " + shaderInfo.getType());
-        };
+        int glType = ShaderProgram.getGLShaderType(shaderInfo);
 
-        int shader = glCreateShader(type);
+        int shader = glCreateShader(glType);
 
         String source = shaderInfo
                 .getSource()
@@ -151,6 +146,27 @@ public class ShaderProgram extends Resource {
         }
 
         return shader;
+    }
+
+    private static int getGLShaderType(ShaderInfo shaderInfo) {
+        int glType;
+        // Check if the class of the shaderInfo.type is an Instance of ResourceType.Shader that is a child of ResourceType.
+        // Then java provides a way to extract the records fields without creating a Resource.Shader variable.
+        if (shaderInfo.getType() instanceof ResourceType.Shader(ResourceType.Shader.Type shaderType))
+             glType = switch (shaderType) {
+                case Compute -> GL_COMPUTE_SHADER;
+                case Vertex -> GL_VERTEX_SHADER;
+                case Fragment -> GL_FRAGMENT_SHADER;
+                /*
+                  Always handle cases default cases even if they cannot happen now. This ensures if other shader types are
+                  added that I will always implement them.
+                */
+                default -> throw new UnimplementedException("Unimplemented shader type: " + shaderType);
+            };
+        else
+            throw new RuntimeException("Invalid Shader Type: " + shaderInfo.getType());
+
+        return glType;
     }
 
 }
