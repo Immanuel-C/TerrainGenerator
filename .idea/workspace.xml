@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8a3c32f9-a9bc-467d-b8a2-ab75d8811a16" name="Changes" comment="Need to finish UI, testing hot reloading, using the resources folder provided instead of the assets' folder." />
+    <list default="true" id="8a3c32f9-a9bc-467d-b8a2-ab75d8811a16" name="Changes" comment="Cleaned up code a bit, simplified, removed unused files and commented some code.">
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TODO.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/TODO.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/AsyncResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/terrain_generator/utils/AsyncResourceManager.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,8 +42,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Class" />
         <option value="Exception" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -50,13 +56,13 @@
     &quot;assignee&quot;: &quot;Immanuel-C&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Immanuel-C/TerrainGenerator.git",
-    "accountId": "308a2388-e7e2-400b-b4aa-2d28f4ce99da"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Immanuel-C/TerrainGenerator.git&quot;,
+    &quot;accountId&quot;: &quot;54c576ea-768c-4f12-ab34-7d25a3256442&quot;
   }
-}]]></component>
-  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14" javaHome="$USER_HOME$/.jdks/jbr-21.0.9" gradleVersion="8.14" />
+}</component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\immuv\.gradle\wrapper\dists\gradle-9.0.0-bin\d6wjpkvcgsg3oed0qlfss3wgl\gradle-9.0.0" javaHome="C:\Users\immuv\.jdks\ms-21.0.9" gradleVersion="9.0.0" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 1
@@ -77,33 +83,20 @@
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/immu/code/TerrainGenerator/src/main/resources",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
   }
 }]]></component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources/shaders" />
-    </key>
-  </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="21" />
+      <option name="ALTERNATIVE_JRE_PATH" value="ms-21" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <envs>
-        <env name="LD_PRELOAD" value="/usr/lib/librenderdoc.so" />
-        <env name="vblank_mode" value="1" />
-      </envs>
       <option name="MAIN_CLASS_NAME" value="terrain_generator.Main" />
       <module name="TerrainGenerator.main" />
-      <option name="PROGRAM_PARAMETERS" value="-Dawt.toolkit.name=WLToolkit" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="terrain_generator.*" />
@@ -138,7 +131,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26199.169" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.240" />
       </set>
     </attachedChunks>
   </component>
@@ -206,23 +199,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768590955848</updated>
     </task>
-    <task id="LOCAL-00008" summary="Finished hot reloading with the async resource manager">
+    <task id="LOCAL-00008" summary="Cleaned up code a bit, simplified, removed unused files and commented some code.">
       <option name="closed" value="true" />
-      <created>1768930921807</created>
+      <created>1768879029437</created>
       <option name="number" value="00008" />
       <option name="presentableId" value="LOCAL-00008" />
       <option name="project" value="LOCAL" />
-      <updated>1768930921807</updated>
+      <updated>1768879029437</updated>
     </task>
-    <task id="LOCAL-00009" summary="Need to finish UI, testing hot reloading, using the resources folder provided instead of the assets' folder.">
-      <option name="closed" value="true" />
-      <created>1768935040922</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1768935040922</updated>
-    </task>
-    <option name="localTasksCounter" value="10" />
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -233,8 +218,7 @@
     <MESSAGE value="Added UniformNotFoundException messing with how coordinate spaces and matrices work especially the perspective matrix" />
     <MESSAGE value="finishing colour picker" />
     <MESSAGE value="Finishing AsyncResourceManager hot reloading." />
-    <MESSAGE value="Finished hot reloading with the async resource manager" />
-    <MESSAGE value="Need to finish UI, testing hot reloading, using the resources folder provided instead of the assets' folder." />
-    <option name="LAST_COMMIT_MESSAGE" value="Need to finish UI, testing hot reloading, using the resources folder provided instead of the assets' folder." />
+    <MESSAGE value="Cleaned up code a bit, simplified, removed unused files and commented some code." />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned up code a bit, simplified, removed unused files and commented some code." />
   </component>
 </project>

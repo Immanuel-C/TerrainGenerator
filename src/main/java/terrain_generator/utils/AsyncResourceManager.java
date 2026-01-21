@@ -227,17 +227,9 @@ public class AsyncResourceManager {
         return Optional.ofNullable(this.resources.get(name));
     }
 
+    // name should not include a '/' at the start. Always use front slashes.
     public static String getResourcePath(String name) {
-        String path = AsyncResourceManager.class
-                .getClassLoader()
-                .getResource(name)
-                .getPath();
-
-
-        if (path == null)
-            throw new RuntimeException("Resource folder cannot be located.");
-
-        return path;
+        return "src/main/resources/" + name;
     }
 
 }
