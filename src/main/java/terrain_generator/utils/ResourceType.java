@@ -5,7 +5,7 @@ package terrain_generator.utils;
 // some data.
 public sealed interface ResourceType {
     // The shader record takes in an enum of type ResourceType.Shader.Type.
-    record Shader(Type type) implements ResourceType {
+    record ShaderInfo(Type type) implements ResourceType {
         public enum Type {
             Vertex,
             Fragment,

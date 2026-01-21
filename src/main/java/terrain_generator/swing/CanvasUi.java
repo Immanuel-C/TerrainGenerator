@@ -26,96 +26,96 @@ public class CanvasUi extends JPanel {
 
         this.add(fpsLabel);
 
-        LabeledSpinner octaveSpinner = new LabeledSpinner("Octaves: ", new SpinnerNumberModel(this.terrainState.octaves, 0, 100, 1));
+        LabeledSpinner octaveSpinner = new LabeledSpinner("Octaves: ", new SpinnerNumberModel(this.terrainState.getOctaves(), 0, 100, 1));
 
         octaveSpinner.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.octaves = (int) octaveSpinner.getSpinner().getValue();
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setOctaves((int) octaveSpinner.getSpinner().getValue());
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 
 
-        LabeledSpinner frequencySlider = new LabeledSpinner("Frequency: ", new SpinnerNumberModel(this.terrainState.frequency, 0.0, 1.0, 0.001));
+        LabeledSpinner frequencySlider = new LabeledSpinner("Frequency: ", new SpinnerNumberModel(this.terrainState.getFrequency(), 0.0, 1.0, 0.001));
 
         frequencySlider.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.frequency = ((Double) frequencySlider.getSpinner().getValue()).floatValue();
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setFrequency(((Double) frequencySlider.getSpinner().getValue()).floatValue());
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 
 
-        LabeledSpinner amplitudeSlider = new LabeledSpinner("Amplitude: ", new SpinnerNumberModel(this.terrainState.amplitude, 1, 50, 1));
+        LabeledSpinner amplitudeSlider = new LabeledSpinner("Amplitude: ", new SpinnerNumberModel(this.terrainState.getAmplitude(), 1, 50, 1));
 
         amplitudeSlider.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.amplitude = ((Double)amplitudeSlider.getSpinner().getValue()).floatValue();
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setAmplitude(((Double)amplitudeSlider.getSpinner().getValue()).floatValue());
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 
 
-        LabeledSpinner frequencyMultiplierSpinner = new LabeledSpinner("Frequency Multiplier: ", new SpinnerNumberModel(this.terrainState.frequencyMultiplier, 1.1, 10.0, 1));
+        LabeledSpinner frequencyMultiplierSpinner = new LabeledSpinner("Frequency Multiplier: ", new SpinnerNumberModel(this.terrainState.getFrequencyMultiplier(), 1.1, 10.0, 1));
 
         frequencyMultiplierSpinner.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.frequencyMultiplier = ((Double)frequencyMultiplierSpinner.getSpinner().getValue()).floatValue();
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setFrequencyMultiplier(((Double)frequencyMultiplierSpinner.getSpinner().getValue()).floatValue());
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 
-        LabeledSpinner amplitudeMultiplierSpinner = new LabeledSpinner("Amplitude Multiplier: ", new SpinnerNumberModel(this.terrainState.amplitudeMultiplier, 0.1, 1.0, 0.1));
+        LabeledSpinner amplitudeMultiplierSpinner = new LabeledSpinner("Amplitude Multiplier: ", new SpinnerNumberModel(this.terrainState.getAmplitudeMultiplier(), 0.1, 1.0, 0.1));
 
         amplitudeMultiplierSpinner.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.amplitudeMultiplier = ((Double)amplitudeMultiplierSpinner.getSpinner().getValue()).floatValue();
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setAmplitudeMultiplier(((Double)amplitudeMultiplierSpinner.getSpinner().getValue()).floatValue());
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 
 
-        LabeledSpinner widthSpinner = new LabeledSpinner("Width: ", new SpinnerNumberModel(this.terrainState.width, 16, 1024, 2));
+        LabeledSpinner widthSpinner = new LabeledSpinner("Width: ", new SpinnerNumberModel(this.terrainState.getWidth(), 16, 1024, 2));
 
         widthSpinner.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.width = (Integer)widthSpinner.getSpinner().getValue();
+                terrainState.setWidth((Integer)widthSpinner.getSpinner().getValue());
 
-                if (terrainState.width % 2 != 0) {
+                if (terrainState.getWidth() % 2 != 0) {
                     // Has to be done to satisfy the requirements of volatile primitives.
                     // TODO: extract this into a method.
-                    AtomicInteger newWidth = new AtomicInteger(terrainState.width + 1);
+                    AtomicInteger newWidth = new AtomicInteger(terrainState.getWidth() + 1);
                     widthSpinner.getSpinner().setValue(newWidth.get());
-                    terrainState.width = newWidth.get();
+                    terrainState.setWidth(newWidth.get());
                 }
 
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 
 
-        LabeledSpinner lengthSpinner = new LabeledSpinner("Length: ", new SpinnerNumberModel(this.terrainState.length, 16, 1024, 2));
+        LabeledSpinner lengthSpinner = new LabeledSpinner("Length: ", new SpinnerNumberModel(this.terrainState.getLength(), 16, 1024, 2));
 
         lengthSpinner.getSpinner().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                terrainState.length = (Integer)lengthSpinner.getSpinner().getValue();
+                terrainState.setLength((Integer)lengthSpinner.getSpinner().getValue());
 
-                if (terrainState.length % 2 != 0) {
+                if (terrainState.getLength() % 2 != 0) {
                     // Has to be done to satisfy the requirements of volatile primitives.
                     // TODO: extract this into a method.
-                    AtomicInteger newLength = new AtomicInteger(terrainState.length + 1);
+                    AtomicInteger newLength = new AtomicInteger(terrainState.getLength() + 1);
                     lengthSpinner.getSpinner().setValue(newLength.get());
-                    terrainState.length = newLength.get();
+                    terrainState.setLength(newLength.get());
                 }
 
-                terrainState.shouldGenerateTerrain = true;
+                terrainState.setShouldGenerateTerrain(true);
             }
         });
 

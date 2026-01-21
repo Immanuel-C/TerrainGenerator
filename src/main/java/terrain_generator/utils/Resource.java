@@ -10,7 +10,10 @@ import java.util.stream.Collectors;
 public abstract class Resource {
     protected final ResourceType type;
 
+    // Set the type of resource. This allows us to check what type the resource is without reflection at runtime
+    // which can be expensive.
     protected Resource(ResourceType type) { this.type = type; }
+
     public ResourceType getType() { return this.type; }
 
     // If a resource does not need to be manually destroyed than this method

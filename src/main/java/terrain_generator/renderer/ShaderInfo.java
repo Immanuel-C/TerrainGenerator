@@ -3,10 +3,10 @@ package terrain_generator.renderer;
 import terrain_generator.utils.Resource;
 import terrain_generator.utils.ResourceType;
 
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.Optional;
 
+// ShaderInfo describes the type of shader (vertex/fragment/compute (unused)) .
+// The path to the shader file and the source code of the shader.
 public final class ShaderInfo extends Resource {
     private final String path;
     // The source shouldn't be stored at all since a Resources data could be very large.
@@ -20,8 +20,10 @@ public final class ShaderInfo extends Resource {
     // objects whenever the GC decides to drop it like an OpenGL object but is unused since I only recently learned about it).
     private String source;
 
-    public ShaderInfo(String path, ResourceType.Shader.Type type) {
-        super(new ResourceType.Shader(type));
+    // The ShaderInfo constructor only takes in a shader type and a path. The source is to be set by the resource manager.
+    public ShaderInfo(String path, ResourceType.ShaderInfo.Type type) {
+        // Set the Resource type which is a Shader Info which its shader type is provided in the constructor.
+        super(new ResourceType.ShaderInfo(type));
         this.path = path;
     }
 
@@ -29,12 +31,12 @@ public final class ShaderInfo extends Resource {
         return path;
     }
 
-
-
     public void setSource(String source) {
         this.source = source;
     }
 
+    // Optional is used to force the caller of this method to check if the source is in an invalid state.
+    // ofNullable checks if source is null if it is then the value is not present if source is not null then the source is present.
     public Optional<String> getSource() {
         return Optional.ofNullable(this.source);
     }

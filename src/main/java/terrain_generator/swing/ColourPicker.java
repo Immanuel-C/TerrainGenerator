@@ -297,7 +297,6 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
             // To get the point back we must do the inverse of this equation.
             // float hue = (float)(point.angle(up) / Math.PI);
             double angle = -(2 * hsb[0] - 1) * Math.PI;
-            double angleDeg =  Math.toDegrees(angle);
             double magnitude = hsb[1] * this.radius;
             // rotate the direction of the up vector angle radians using a rotation matrix.
             // This results in the direction of the point from the center of the circle.
@@ -311,8 +310,6 @@ public class ColourPicker extends JPanel implements ActionListener, ChangeListen
 
             this.pickerPosition.set(positionImageSpace.mul(((double) this.getScaledSize() / (this.radius * 2))));
             this.repaint();
-
-
         }
 
         @Override

@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Executor {
     private AtomicBoolean running;
     private DeltaTime deltaTime;
-    private final Input input;
     private Renderer renderer;
     private Thread renderThread;
     private TerrainState terrainState;
@@ -34,20 +33,15 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
     AsyncResourceManager resourceManager;
 
 
-    public TerrainCanvas(GLData data, Input input, TerrainState terrainState, RenderSettings renderSettings) {
+    public TerrainCanvas(GLData data, TerrainState terrainState, RenderSettings renderSettings) {
         super(data);
 
         this.addComponentListener(this);
-        this.addKeyListener(input);
-        this.addMouseListener(input);
-        this.addMouseMotionListener(input);
-        this.addMouseWheelListener(input);
 
         this.running = new AtomicBoolean(true);
         this.deltaTime = new DeltaTime();
         this.glTasks = new ConcurrentLinkedQueue<>();
         this.resourceManager = new AsyncResourceManager(this);
-        this.input = input;
         this.fps = new AtomicReference<>(0.0);
 
 
@@ -161,6 +155,7 @@ public class TerrainCanvas extends AWTGLCanvas implements ComponentListener, Exe
 
     @Override
     public void componentResized(ComponentEvent componentEvent) {
+        // this.getWidth() and this.getHeight() is not thread safe but it should be fine. It's never failed.
         this.glTasks.add(() -> this.renderer.resizeViewport(0, 0, this.getWidth(), this.getHeight()));
     }
 

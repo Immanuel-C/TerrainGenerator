@@ -13,7 +13,6 @@ public class TerrainGenerator extends JFrame implements WindowListener {
     TerrainCanvas canvas;
     JTabbedPane infoPane;
     CanvasUi canvasUi;
-    Input input;
 
     public TerrainGenerator() throws InterruptedException {
         super("Terrain Generator");
@@ -38,7 +37,7 @@ public class TerrainGenerator extends JFrame implements WindowListener {
         data.sRGB = true;
         data.profile = GLData.Profile.CORE;
 
-        this.canvas = new TerrainCanvas(data, input, terrainState, renderSettings);
+        this.canvas = new TerrainCanvas(data, terrainState, renderSettings);
 
         this.infoPane = new JTabbedPane();
         this.infoPane.setPreferredSize(new Dimension(300, 720));

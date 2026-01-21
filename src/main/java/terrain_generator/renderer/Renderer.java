@@ -65,8 +65,8 @@ public class Renderer {
         this.resourceManager.loadShaderProgram(
             "defaultShader",
             List.of(
-                new ShaderInfo(AsyncResourceManager.getResourcePath("shaders/default.vert"), ResourceType.Shader.Type.Vertex),
-                new ShaderInfo(AsyncResourceManager.getResourcePath("shaders/default.frag"), ResourceType.Shader.Type.Fragment)
+                new ShaderInfo(AsyncResourceManager.getResourcePath("shaders/default.vert"), ResourceType.ShaderInfo.Type.Vertex),
+                new ShaderInfo(AsyncResourceManager.getResourcePath("shaders/default.frag"), ResourceType.ShaderInfo.Type.Fragment)
             )
         );
 
@@ -80,10 +80,10 @@ public class Renderer {
         this.indices = new ArrayList<>();
         this.normalDebugLinesVertices = new ArrayList<>();
 
-        VertexAttributeDescriptor[] attributeDescriptors = {
-                new VertexAttributeDescriptor(3, 0),
-                new VertexAttributeDescriptor(3, 3 * Float.BYTES),
-        };
+        List<VertexAttributeDescriptor> attributeDescriptors = List.of(
+                new VertexAttributeDescriptor(3, 0, false),
+                new VertexAttributeDescriptor(3, 3 * Float.BYTES, true)
+        );
 
         this.terrainState = terrainState;
         this.renderSettings = renderSettings;
@@ -129,14 +129,14 @@ public class Renderer {
 
 
 
-        if (this.renderSettings.wireFrame)
+        if (this.renderSettings.isWireFrame())
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
-        if (this.terrainState.shouldGenerateTerrain) {
-            this.terrainState.shouldGenerateTerrain = false;
+        if (this.terrainState.isShouldGenerateTerrain()) {
+            this.terrainState.setShouldGenerateTerrain(false);
             this.generateTerrainData();
             this.terrain.uploadData(this.vertices, this.indices);
             ArrayList<Integer> dummyIndices = new ArrayList<>();
@@ -148,7 +148,7 @@ public class Renderer {
         this.camera.update();
 
 
-        glClearColor(this.renderSettings.clearColour.getRed() / 255.0f, this.renderSettings.clearColour.getGreen() / 255.0f, this.renderSettings.clearColour.getBlue() / 255.0f, 1.0f);
+        glClearColor(this.renderSettings.getClearColour().getRed() / 255.0f, this.renderSettings.getClearColour().getGreen() / 255.0f, this.renderSettings.getClearColour().getBlue() / 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         this.terrain.bind();
@@ -161,7 +161,7 @@ public class Renderer {
             this.defaultShader.uploadMatrix4f(this.model, "modelMat");
 
             this.defaultShader.uploadMatrix3f(new Matrix3f(this.model).normal(), "normalMat");
-            this.defaultShader.uploadFloat(this.renderSettings.ambientStrength, "ambientStrength");
+            this.defaultShader.uploadFloat(this.renderSettings.getAmbientStrength(), "ambientStrength");
             this.defaultShader.uploadVec3(lightPos, "lightPos");
             this.defaultShader.uploadVec3(new Vector3f(1.0f), "lightColour");
         } catch (UniformNotFoundException e) {
@@ -173,7 +173,7 @@ public class Renderer {
         this.normalDebugLines.bind();
         this.defaultShader.bind();
 
-        if (this.renderSettings.renderNormalDirections)
+        if (this.renderSettings.isRenderNormalDirections())
             glDrawArrays(GL_LINES, 0, this.normalDebugLinesVertices.size());
 
     }
@@ -184,8 +184,8 @@ public class Renderer {
         this.normalDebugLinesVertices.clear();
 
         // Create a grid of
-        for (int x = -this.terrainState.width / 2; x < this.terrainState.width / 2; x++)  {
-            for (int z = -this.terrainState.length / 2; z < this.terrainState.length / 2; z++) {
+        for (int x = -this.terrainState.getWidth() / 2; x < this.terrainState.getWidth() / 2; x++)  {
+            for (int z = -this.terrainState.getLength() / 2; z < this.terrainState.getLength() / 2; z++) {
                 this.vertices.add(
                         new Vertex(
                                 new Vector3f(x, this.noise(x, z), z),
@@ -196,12 +196,12 @@ public class Renderer {
         }
 
         // Compute 2 triangles from the terrain vertices
-        for (int row = 0; row < this.terrainState.width - 1; row++) {
-            for (int column = 0; column < this.terrainState.length - 1; column++) {
+        for (int row = 0; row < this.terrainState.getWidth() - 1; row++) {
+            for (int column = 0; column < this.terrainState.getLength() - 1; column++) {
                 // Top Left
-                int v1 = row * this.terrainState.length + column;
+                int v1 = row * this.terrainState.getLength() + column;
                 // Bottom Left
-                int v2 = v1 + this.terrainState.length;
+                int v2 = v1 + this.terrainState.getLength();
                 // Top Right
                 int v3 = v1 + 1;
                 // Bottom Right
@@ -269,13 +269,13 @@ public class Renderer {
 
     private float noise(float x, float y) {
         float height = 0.0f;
-        float frequency = this.terrainState.frequency;
-        float amplitude = this.terrainState.amplitude;
+        float frequency = this.terrainState.getFrequency();
+        float amplitude = this.terrainState.getAmplitude();
 
-        for (int i = 0; i < this.terrainState.octaves; i++) {
+        for (int i = 0; i < this.terrainState.getOctaves(); i++) {
             height += amplitude * SimplexNoise.noise(x * frequency, y * frequency) + amplitude / 2;
-            frequency *= this.terrainState.frequencyMultiplier;
-            amplitude *= this.terrainState.amplitudeMultiplier;
+            frequency *= this.terrainState.getFrequencyMultiplier();
+            amplitude *= this.terrainState.getAmplitudeMultiplier();
         }
 
 
